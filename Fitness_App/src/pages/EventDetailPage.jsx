@@ -4,11 +4,12 @@ import MapView from '../components/MapView'
 import { Avatar, AvatarStack } from '../components/Avatar'
 import ChatPanel from '../components/ChatPanel'
 import Comments from '../components/Comments'
+import ChallengeBox from '../components/ChallengeBox'
 import { activePeople, eventEnd, eventPhase, formatLong, formatTime, isTracked, SAFETY_OPENS_MIN, sportColors, sportIcon, spotsLeft } from '../utils/constants'
 import '../styles/safety.css'
 import '../styles/detail.css'
 
-export default function EventDetailPage({ session, event: a, data, actions, onBack, focus, onCommented, openLive }) {
+export default function EventDetailPage({ session, event: a, data, actions, notify, onBack, focus, onCommented, openLive }) {
   const [tab, setTab] = useState('overview')
 
   // Opened from a "leave a comment" notification: jump to the comment box
@@ -67,7 +68,6 @@ export default function EventDetailPage({ session, event: a, data, actions, onBa
       </div>
 
       <h1 className="detail-title">{a.title}</h1>
-      {a.type === 'team' && <p className="detail-vs">⚔️ {a.opponent_team ? `vs ${a.opponent_team}` : 'Open challenge, any team can accept'}</p>}
 
       <ul className="detail-meta">
         <li><Icon name="pin" size={18} />{[a.address, a.city].filter(Boolean).join(', ')}</li>
@@ -78,6 +78,10 @@ export default function EventDetailPage({ session, event: a, data, actions, onBa
           {a.host?.is_verified && <span className="verified"><Icon name="check" size={12} /> Verified</span>}
         </li>
       </ul>
+
+      {a.type === 'team' && (
+        <ChallengeBox activity={a} isHost={isHost} ended={eventPhase(a) === 'ended'} notify={notify} onChange={data.reload} />
+      )}
 
       <div className="tabs">
         {[['overview', 'Overview'], ['people', `People (${people.length})`], ['chat', 'Chat'], ['map', 'Map']].map(([id, label]) => (

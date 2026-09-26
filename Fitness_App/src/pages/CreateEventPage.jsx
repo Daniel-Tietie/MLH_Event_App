@@ -17,6 +17,7 @@ export default function CreateEventPage({ session, data, preset, notify, goBack,
     date: preset?.date || '',
     time: '',
     max_participants: 8,
+    duration: 60,
     description: '',
     city: '',
     address: '',
@@ -85,6 +86,7 @@ export default function CreateEventPage({ session, data, preset, notify, goBack,
       address: form.address || null,
       location: toPoint(coords),
       starts_at: startsAt.toISOString(),
+      ends_at: new Date(startsAt.getTime() + Number(form.duration) * 60e3).toISOString(),
       max_participants: Number(form.max_participants),
       night_mode: night,
       status: 'open',
@@ -131,6 +133,18 @@ export default function CreateEventPage({ session, data, preset, notify, goBack,
             <Icon name="clock" size={18} />
           </label>
         </div>
+
+        <label className="field-labelled">
+          <span>Estimated duration <em>(you'll be asked to end or extend when time's up)</em></span>
+          <select value={form.duration} onChange={set('duration')} aria-label="Estimated duration">
+            <option value={30}>30 minutes</option>
+            <option value={60}>1 hour</option>
+            <option value={90}>1.5 hours</option>
+            <option value={120}>2 hours</option>
+            <option value={180}>3 hours</option>
+            <option value={240}>4 hours</option>
+          </select>
+        </label>
 
         <div className="row">
           <select value={form.type} onChange={set('type')} aria-label="Format">

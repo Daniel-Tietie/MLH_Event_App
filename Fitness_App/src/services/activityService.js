@@ -7,7 +7,7 @@ export function fetchActivities() {
     .from('activities')
     .select(`
       id, host_id, title, description, type, category, opponent_team, city, address,
-      location, starts_at, max_participants, status, night_mode,
+      location, starts_at, ends_at, max_participants, status, night_mode,
       sport:sports(id, name),
       host:profiles!host_id(full_name, avatar_url, is_verified),
       activity_participants(user_id, status, checked_in_at)
@@ -48,18 +48,22 @@ export async function fetchActivityHistory(userId) {
   const ids = [...new Set([...(joined || []).map((r) => r.activity_id), ...hostedIds])]
   if (!ids.length) return []
 
-  const [{ data: events, error: e3 }, { data: reviews, error: e4 }] = await Promise.all([
+  const [{ data: events, error: e3 }, { data: reviews, error: e4 }, { data: photos }] = await Promise.all([
     supabase.from('activities').select('id, title, starts_at, city, sport:sports(name)').in('id', ids).order('starts_at', { ascending: false }),
     supabase.from('comments').select('activity_id, body, created_at').eq('user_id', userId).in('activity_id', ids),
+    supabase.from('activity_photos').select('activity_id, image_url').eq('user_id', userId).in('activity_id', ids),
   ])
   if (e3 || e4) throw new Error((e3 || e4).message)
 
   const reviewBy = Object.fromEntries((reviews || []).map((r) => [r.activity_id, r.body]))
+  const photosBy = {}
+  ;(photos || []).forEach((p) => (photosBy[p.activity_id] ||= []).push(p.image_url))
   return (events || []).map((e) => ({
     ...e,
     sport: e.sport?.name,
     role: hostedIds.has(e.id) ? 'host' : 'attended',
     review: reviewBy[e.id] || null,
+    photos: photosBy[e.id] || [],
   }))
 }
 
@@ -74,3 +78,57 @@ export async function fetchCommentedIds(userId, activityIds) {
   if (error) throw new Error(error.message)
   return new Set((data || []).map((r) => r.activity_id))
 }
+
+// ---------- Photos ----------
+
+// Shrink big phone photos before uploading (max 1600px, JPEG) so uploads are fast
+async function compressImage(file, maxSize = 1600, quality = 0.82) {
+  const url = URL.createObjectURL(file)
+  try {
+    const img = await new Promise((resolve, reject) => {
+      const i = new Image()
+      i.onload = () => resolve(i)
+      i.onerror = reject
+      i.src = url
+    })
+    const scale = Math.min(1, maxSize / Math.max(img.width, img.height))
+    const canvas = document.createElement('canvas')
+    canvas.width = Math.round(img.width * scale)
+    canvas.height = Math.round(img.height * scale)
+    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height)
+    return await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', quality))
+  } finally {
+    URL.revokeObjectURL(url)
+  }
+}
+
+export async function uploadActivityPhoto(activityId, userId, file) {
+  if (!file.type.startsWith('image/')) throw new Error('Please choose an image')
+  const blob = await compressImage(file)
+  const path = `${activityId}/${userId}/${Date.now()}.jpg`
+  const { error: upErr } = await supabase.storage.from('activity-photos').upload(path, blob, { contentType: 'image/jpeg' })
+  if (upErr) throw new Error(upErr.message)
+  const { data } = supabase.storage.from('activity-photos').getPublicUrl(path)
+  const { error } = await supabase.from('activity_photos').insert({ activity_id: activityId, user_id: userId, image_url: data.publicUrl })
+  if (error) throw new Error(error.message)
+  return data.publicUrl
+}
+
+export async function fetchActivityPhotos(activityId) {
+  const { data, error } = await supabase
+    .from('activity_photos')
+    .select('id, image_url, user_id, created_at')
+    .eq('activity_id', activityId)
+    .order('created_at', { ascending: false })
+  if (error) throw new Error(error.message)
+  return data || []
+}
+
+// ---------- Team challenges ----------
+
+export const acceptChallenge = (activityId, teamName) =>
+  supabase.rpc('accept_challenge', { p_activity: activityId, p_team: teamName })
+
+// Host only: reopen the challenge
+export const clearChallenge = (activityId) =>
+  supabase.from('activities').update({ opponent_team: null, challenger_id: null }).eq('id', activityId)

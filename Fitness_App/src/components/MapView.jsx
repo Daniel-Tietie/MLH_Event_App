@@ -4,9 +4,12 @@ import 'leaflet/dist/leaflet.css'
 import { DEFAULT_CENTER } from '../utils/constants'
 import '../styles/map.css'
 
-// Free map tiles (OpenStreetMap data, CARTO style). No API key needed.
-const TILES = 'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=cb1_3zkr_1_0784a2feb31def8cd3129197'
-const ATTRIBUTION = '&copy; OpenStreetMap contributors &copy; CARTO'
+// Free OpenStreetMap tiles. No API key needed.
+const CARTO_KEY = import.meta.env.VITE_CARTO_KEY
+const TILES = CARTO_KEY
+  ? `https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${CARTO_KEY}`
+  : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+const ATTRIBUTION = CARTO_KEY ? '&copy; OpenStreetMap contributors &copy; CARTO' : '&copy; OpenStreetMap contributors'
 
 const pinIcon = (emoji, variant = '') =>
   L.divIcon({
@@ -48,7 +51,7 @@ export default function MapView({
   useEffect(() => {
     const start = center || picked || userPos || DEFAULT_CENTER
     const m = L.map(el.current, { scrollWheelZoom: true }).setView([start.lat, start.lng], zoom)
-    L.tileLayer(TILES, { attribution: ATTRIBUTION, subdomains: 'abcd', maxZoom: 20 }).addTo(m)
+    L.tileLayer(TILES, { attribution: ATTRIBUTION, maxZoom: CARTO_KEY ? 20 : 19 }).addTo(m)
     layers.current = {
       events: L.layerGroup().addTo(m),
       picked: L.layerGroup().addTo(m),

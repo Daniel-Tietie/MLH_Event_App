@@ -16,7 +16,6 @@ const INTERVALS = [
   [900, 'Every 15 min'],
 ]
 const RESPONSE_WINDOW_MS = 20000 // time to answer "Are you OK?"
-const DEMO_NAMES = ['Alex', 'Priya', 'Jordan', 'Sam']
 
 /**
  * Safety screen. Opens 30 min before the event and stays live until it ends.
@@ -102,21 +101,25 @@ function LiveSession({ session, a, phase, notify, goBack, data }) {
     })
   }, [a.id])
 
-  // ---------- Who's here ----------
-  // present = counts for the radar and alerts: host, you, and anyone who checked in with their QR code
+  // ---------- Who's here: the real host + attendees of THIS event ----------
+  // Live tracking: everyone attending is on the radar (their movement is simulated for the demo).
+  // Check-in mode: people count as "arrived" once the host scans their QR code.
   const peopleKey = people.map((p) => `${p.user_id}:${p.status}`).join(',')
   const roster = useMemo(() => {
     const list = [{ id: a.host_id, name: isHost ? 'You' : a.host?.full_name || 'Host', isHost: true, isMe: isHost, present: true }]
     people.forEach((p) => {
+      if (p.user_id === a.host_id) return
       const isMe = p.user_id === userId
-      list.push({ id: p.user_id, name: isMe ? 'You' : p.profile?.full_name || 'Player', isMe, present: isMe || p.status === 'checked_in' })
+      list.push({
+        id: p.user_id,
+        name: isMe ? 'You' : p.profile?.full_name || 'Player',
+        isMe,
+        qr: p.status === 'checked_in',
+        present: tracked || isMe || p.status === 'checked_in',
+      })
     })
-    if (tracked) {
-      // Demo walkers so the radar looks alive
-      let i = 0
-      while (list.filter((m) => m.present).length < 4) list.push({ id: `demo-${i}`, name: DEMO_NAMES[i++], demo: true, present: true })
-    }
-    const wanderer = tracked ? list.find((m) => m.demo) || [...list].reverse().find((m) => m.present && !m.isMe && !m.isHost) : null
+    // Demo: one real attendee (not you, not the host) wanders off now and then to show the alert
+    const wanderer = tracked ? [...list].reverse().find((m) => !m.isMe && !m.isHost) : null
     return list.map((m, idx) => ({ ...m, idx, wanderer: wanderer?.id === m.id }))
   }, [a.host_id, peopleKey, userId, tracked]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -202,14 +205,6 @@ function LiveSession({ session, a, phase, notify, goBack, data }) {
     addFeed('info', 'Host pinged everyone for a safety check-in')
     if (allowed && statusRef.current[userId] !== 'checked_out') setPrompt({ deadline: Date.now() + RESPONSE_WINDOW_MS })
 
-    // Demo walkers answer after a few seconds, unless they've wandered off
-    list.filter((m) => m.demo).forEach((m) => {
-      setTimeout(() => {
-        const cur = posRef.current.find((x) => x.id === m.id)
-        if (cur && !cur.outside) respond(m, 'safe')
-      }, 1500 + Math.random() * 3500)
-    })
-
     // Anyone still silent after the window is flagged
     setTimeout(() => {
       const silent = posRef.current.filter((m) => !m.isMe && statusRef.current[m.id] === 'pending')
@@ -221,7 +216,7 @@ function LiveSession({ session, a, phase, notify, goBack, data }) {
         return next
       })
     }, RESPONSE_WINDOW_MS + 2000)
-  }, [addFeed, allowed, respond, askOne, userId])
+  }, [addFeed, allowed, askOne, userId])
   const runCheckinRef = useRef(runCheckin)
   runCheckinRef.current = runCheckin
 
@@ -339,8 +334,8 @@ function LiveSession({ session, a, phase, notify, goBack, data }) {
   const sosText = encodeURIComponent(`SOS from ${myName} at "${a.title}". My location: https://maps.google.com/?q=${myLoc}`)
   const secondsLeft = Math.max(0, Math.ceil((nextAt - now) / 1000))
   const outsideNow = positions.filter((m) => m.outside)
-  const arrivedCount = roster.filter((m) => m.present && !m.demo).length
-  const realCount = roster.filter((m) => !m.demo).length
+  const arrivedCount = roster.filter((m) => m.isHost || m.qr || (m.isMe && m.present)).length
+  const realCount = roster.length
   const checkedOutCount = roster.filter((m) => statuses[m.id] === 'checked_out' || (ended && statuses[m.id] === 'safe')).length
   const radarMembers = tracked
     ? positions.map((m) => ({
@@ -494,7 +489,7 @@ function LiveSession({ session, a, phase, notify, goBack, data }) {
                     <span className="member-name">
                       {m.name}
                       {m.isHost && <small> · host</small>}
-                      {m.demo && <small> · demo</small>}
+                      {m.qr && <small> · QR ✓</small>}
                     </span>
                     <span className={`member-status ${tone}`}>{label}</span>
                   </li>

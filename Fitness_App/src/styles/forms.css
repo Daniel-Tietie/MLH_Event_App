@@ -37,3 +37,7 @@
   .form { padding: 18px; }
   .row { flex-direction: column; }
 }
+
+.field-labelled { display: flex; flex-direction: column; gap: 6px; }
+.field-labelled > span { font-size: 0.85rem; font-weight: 600; color: var(--muted); }
+.field-labelled em { font-style: normal; font-weight: 500; opacity: 0.8; }

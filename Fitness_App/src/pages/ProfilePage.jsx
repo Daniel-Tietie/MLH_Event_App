@@ -4,7 +4,10 @@ import { Avatar } from '../components/Avatar'
 import { getProfile, setUserSports, updateProfile, verifyIdentityMock } from '../services/api'
 import { fetchActivityHistory } from '../services/activityService'
 import { formatDate, sportColors, sportIcon } from '../utils/constants'
+import EmergencyContacts from '../components/EmergencyContacts'
 import '../styles/social.css'
+import '../styles/features.css'
+import '../styles/safety.css'
 
 const LEVELS = [
   ['casual', 'Casual'],
@@ -162,6 +165,8 @@ export default function ProfilePage({ session, data, notify, openEvent }) {
         </button>
       </form>
 
+      <EmergencyContacts userId={session.user.id} notify={notify} />
+
       <section className="section">
         <div className="section-head">
           <h2>Activity history <span className="count">{history?.length ?? 0}</span></h2>
@@ -187,6 +192,11 @@ export default function ProfilePage({ session, data, notify, openEvent }) {
                   </div>
                   <p className="muted small">{h.sport} · {h.city} · {formatDate(h.starts_at)}</p>
                   {h.review && <p className="history-quote">"{h.review}"</p>}
+                  {h.photos?.length > 0 && (
+                    <div className="history-photos">
+                      {h.photos.slice(0, 4).map((url) => <img key={url} src={url} alt="" loading="lazy" />)}
+                    </div>
+                  )}
                 </div>
               </article>
             ))}
