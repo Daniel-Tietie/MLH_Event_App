@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 
-// This safely pulls your unique keys straight from your .env file
+// Keys come from the .env file in the project root
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 

@@ -1,0 +1,39 @@
+.form-page { max-width: 640px; margin: 0 auto; }
+
+.form-header { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; margin-bottom: 18px; }
+.form-header h2 { text-align: center; font-size: 1.15rem; }
+
+.form { padding: 24px; display: flex; flex-direction: column; gap: 12px; border-radius: 26px; }
+.form-section { font-size: 1rem; font-weight: 700; margin: 8px 0 2px; }
+.form-section:first-child { margin-top: 0; }
+
+.row { display: flex; gap: 12px; }
+.row > * { flex: 1; }
+
+/* Inputs with an icon on the right (date, time, people) */
+.with-icon { position: relative; display: flex; align-items: center; }
+.with-icon input { padding-right: 42px; }
+.with-icon .icon { position: absolute; right: 14px; color: var(--muted); pointer-events: none; }
+.with-icon input[type='date']::-webkit-calendar-picker-indicator,
+.with-icon input[type='time']::-webkit-calendar-picker-indicator {
+  opacity: 0; position: absolute; right: 0; width: 44px; height: 100%; cursor: pointer;
+}
+.grow { flex: 1; }
+
+.toggle-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer;
+  padding: 12px 14px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+}
+.toggle-row > span { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-weight: 600; }
+.toggle-row small { width: 100%; color: var(--muted); font-weight: 500; font-size: 0.8rem; }
+
+.place-search { display: flex; gap: 8px; align-items: center; }
+.place-search .icon-btn { width: 48px; height: 48px; }
+
+.picker { border: 1.5px solid var(--outline); border-radius: 18px; }
+.map-picker { height: 300px; cursor: crosshair; }
+
+@media (max-width: 520px) {
+  .form { padding: 18px; }
+  .row { flex-direction: column; }
+}

@@ -1,0 +1,81 @@
+.detail { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+
+/* Framed hero banner, like the image card in the reference */
+.detail-hero {
+  position: relative; height: 230px; padding: 6px; background: #fff;
+  border: 1.5px solid var(--outline); border-radius: 22px;
+  display: grid; place-items: center;
+}
+.hero-inner { position: absolute; inset: 6px; border-radius: 16px; overflow: hidden; }
+.hero-blob { position: absolute; width: 180px; height: 180px; border-radius: 40px; right: -30px; bottom: -40px; opacity: 0.8; transform: rotate(18deg); }
+.hero-emoji { position: relative; font-size: 5.5rem; filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.15)); }
+.hero-tags { position: absolute; left: 18px; top: 18px; display: flex; gap: 6px; flex-wrap: wrap; }
+.hero-status { position: absolute; right: 18px; top: 18px; }
+
+.detail-title { font-size: clamp(1.5rem, 3vw, 2rem); }
+.detail-vs { color: var(--muted); font-weight: 600; margin-top: -10px; }
+
+.detail-meta { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; color: #4a4f60; font-size: 0.92rem; }
+.detail-meta li { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.detail-meta .icon { color: var(--primary); flex: none; }
+
+/* Overview / Attendees / Map */
+.tabs {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 5px;
+  background: var(--surface); border: 1.5px solid var(--outline); border-radius: 16px;
+}
+.tabs button {
+  background: none; border: 0; border-radius: 11px; padding: 10px 6px;
+  font-weight: 600; color: var(--muted); cursor: pointer; white-space: nowrap;
+}
+.tabs button.active { background: var(--outline); color: #fff; }
+
+.tab-body { display: flex; flex-direction: column; gap: 16px; }
+.detail-desc { color: #5a5f70; line-height: 1.8; }
+
+.facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.facts div {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+  padding: 12px 14px; display: flex; flex-direction: column; gap: 2px;
+}
+.facts span { font-size: 0.75rem; color: var(--muted); font-weight: 600; }
+.facts strong { font-size: 0.92rem; }
+
+.safety-box {
+  display: flex; gap: 12px; align-items: flex-start;
+  background: var(--primary-soft); color: #3d2596; border-radius: 16px; padding: 14px 16px;
+}
+.safety-box .icon { flex: none; color: var(--primary); }
+.safety-box p { font-size: 0.88rem; margin-top: 2px; }
+
+.people { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.people li {
+  display: flex; align-items: center; gap: 12px; padding: 10px 14px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+}
+.people li > div { flex: 1; min-width: 0; }
+
+.map-detail { height: 300px; }
+
+/* Bottom action bar: avatars + "Get Ticket" style button */
+.cta-bar {
+  margin-top: 8px;
+  position: sticky; bottom: 16px; z-index: 400;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  background: var(--surface); border: 1.5px solid var(--outline); border-radius: 20px;
+  padding: 12px 12px 12px 16px; box-shadow: var(--shadow-lg);
+}
+.cta-people { display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--muted); font-size: 0.88rem; }
+.cta-people .low { color: var(--orange); }
+.cta-actions { display: flex; gap: 8px; margin-left: auto; }
+.host-hint { text-align: center; margin-top: -6px; }
+
+@media (max-width: 640px) {
+  .detail-hero { height: 190px; }
+  .facts { grid-template-columns: repeat(2, 1fr); }
+  .cta-actions { width: 100%; }
+  .cta-actions .btn { flex: 1; }
+  .tabs button { font-size: 0.85rem; }
+}
+
+.cta-bar[hidden] { display: none; }

@@ -1,0 +1,239 @@
+/* ---------- Live safety page ---------- */
+.live { display: flex; flex-direction: column; gap: 18px; }
+.live-head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.live-title { flex: 1; min-width: 200px; }
+.live-title h1 { font-size: clamp(1.3rem, 3vw, 1.8rem); }
+.live-pills { display: flex; gap: 8px; }
+.live-badge {
+  display: inline-flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.06em;
+  color: #fff; background: #e5484d; padding: 5px 10px; border-radius: 999px;
+}
+.live-badge i { width: 7px; height: 7px; border-radius: 50%; background: #fff; animation: blink 1.2s infinite; }
+
+.ended-banner {
+  display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 14px;
+  background: var(--green-soft); color: #11734b; font-weight: 600;
+}
+
+.live-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+
+/* Dark monitoring card (like the reference) */
+.night-card {
+  background: #15171c; color: #e8ebf2; border-radius: 24px; overflow: hidden;
+  border: 1.5px solid var(--outline); box-shadow: var(--shadow-lg);
+}
+.night-map { position: relative; }
+.live-map { height: 380px; width: 100%; background: #0f1115; z-index: 0; }
+.live-map .leaflet-tile-pane { filter: invert(1) hue-rotate(185deg) brightness(0.85) saturate(0.5) contrast(0.95); }
+.live-map .leaflet-control-attribution { background: rgba(0, 0, 0, 0.5); color: #9aa3b5; }
+.live-map .leaflet-control-attribution a { color: #9aa3b5; }
+
+.night-mode {
+  position: absolute; top: 14px; left: 56px; z-index: 500;
+  background: rgba(10, 12, 16, 0.8); color: #fff; font-weight: 700; font-size: 0.8rem;
+  padding: 6px 12px; border-radius: 999px; backdrop-filter: blur(6px);
+}
+.night-legend {
+  position: absolute; left: 12px; bottom: 26px; z-index: 500;
+  display: flex; flex-direction: column; gap: 4px; font-size: 0.75rem;
+  background: rgba(10, 12, 16, 0.8); padding: 8px 12px; border-radius: 12px;
+}
+.night-legend span { display: flex; align-items: center; gap: 8px; }
+.night-legend i { width: 9px; height: 9px; border-radius: 50%; }
+.lg-green { background: #22c55e; } .lg-red { background: #ef4444; } .lg-blue { background: #3b82f6; }
+
+.night-stats { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid #262a33; }
+.night-stats div { padding: 14px 10px; text-align: center; display: flex; flex-direction: column; gap: 2px; }
+.night-stats div + div { border-left: 1px solid #262a33; }
+.night-stats span { font-size: 0.78rem; color: #9aa3b5; }
+.night-stats strong { font-size: 1.2rem; font-variant-numeric: tabular-nums; }
+.night-stats strong.danger { color: #ef4444; }
+
+.night-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 16px 18px 18px; border-top: 1px solid #262a33; }
+.night-controls label { display: flex; flex-direction: column; gap: 8px; font-size: 0.85rem; color: #c3c9d6; }
+.night-controls select { background: #23262e; color: #fff; border-color: #333844; }
+.night-controls input[type='range'] { padding: 0; background: none; border: 0; accent-color: #3b82f6; box-shadow: none; }
+.night-ping {
+  grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: #1e2128; border: 1px solid #2c313b; border-radius: 14px; padding: 12px 14px;
+}
+.night-ping p { font-size: 0.8rem; color: #9aa3b5; }
+.btn-ghost-dark { grid-column: 1 / -1; background: transparent; color: #c3c9d6; border-color: #3a3f4b; }
+.night-note { padding: 14px 18px 18px; font-size: 0.88rem; color: #c3c9d6; border-top: 1px solid #262a33; }
+
+/* Markers */
+.live-dot { position: relative; width: 16px; height: 16px; border-radius: 50%; border: 2.5px solid #fff; background: #22c55e; box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.3); }
+.live-dot.host { background: #f6d56a; box-shadow: 0 0 0 3px rgba(246, 213, 106, 0.35); }
+.live-dot.me { background: #3b82f6; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.35); }
+.live-dot.outside, .live-dot.sos { background: #ef4444; box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.3); }
+.live-dot.outside::after, .live-dot.sos::after {
+  content: ''; position: absolute; inset: -12px; border-radius: 50%; border: 2px solid #ef4444; animation: ping 1.4s infinite;
+}
+.live-label {
+  position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); white-space: nowrap;
+  font-size: 0.7rem; font-weight: 700; color: #fff; background: rgba(10, 12, 16, 0.75); padding: 2px 7px; border-radius: 6px;
+}
+
+/* Side panel */
+.live-side { display: flex; flex-direction: column; gap: 14px; }
+.side-card { padding: 16px; }
+.side-card h3 { font-size: 1rem; margin-bottom: 10px; }
+.alert-card {
+  display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 16px;
+  background: #fdecec; border: 1.5px solid #e5484d; color: #8f1d20; animation: pop 0.2s ease;
+}
+.alert-card .icon { flex: none; color: #e5484d; }
+.alert-card p { font-size: 0.85rem; }
+
+.member-list, .feed { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.member-list li { display: flex; align-items: center; gap: 10px; }
+.member-name { flex: 1; min-width: 0; font-weight: 600; font-size: 0.92rem; }
+.member-name small { color: var(--muted); font-weight: 500; }
+.member-status { font-size: 0.72rem; font-weight: 800; padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
+.member-status.good { color: var(--green); background: var(--green-soft); }
+.member-status.wait { color: #9a6b00; background: var(--yellow-soft); }
+.member-status.bad { color: #c62f33; background: #fdecec; }
+
+.feed { max-height: 260px; overflow-y: auto; }
+.feed li { display: flex; gap: 10px; font-size: 0.85rem; padding: 8px 10px; border-radius: 10px; background: var(--surface-2); }
+.feed time { color: var(--muted); font-size: 0.75rem; white-space: nowrap; padding-top: 1px; }
+.feed li.danger { background: #fdecec; color: #8f1d20; }
+.feed li.ok { background: var(--green-soft); color: #11734b; }
+
+/* Bottom bar */
+.safety-bar {
+  position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 700;
+  display: flex; gap: 10px; width: min(520px, calc(100vw - 32px));
+  background: var(--surface); border: 1.5px solid var(--outline); border-radius: 22px; padding: 10px;
+  box-shadow: var(--shadow-lg);
+}
+.safety-bar .btn { flex: 1; padding: 14px; font-size: 1rem; border-radius: 16px; }
+.btn-safe { background: var(--green); color: #fff; }
+.btn-sos { background: #e5484d; color: #fff; font-weight: 800; letter-spacing: 0.08em; text-decoration: none; }
+.safety-bar .btn-sos { flex: 0 0 34%; box-shadow: 0 8px 20px rgba(229, 72, 77, 0.35); }
+
+/* Check-in prompt */
+.checkin-modal { gap: 12px; }
+.checkin-ring {
+  width: 86px; height: 86px; border-radius: 50%; align-self: center; display: grid; place-items: center;
+  background: conic-gradient(var(--green) calc(var(--p) * 360deg), var(--surface-2) 0);
+}
+.checkin-ring span {
+  width: 68px; height: 68px; border-radius: 50%; background: var(--surface);
+  display: grid; place-items: center; font-size: 1.6rem; font-weight: 800;
+}
+
+/* SOS sheet */
+.sos-modal { gap: 12px; max-width: 400px; }
+.sos-icon { font-size: 2.6rem; }
+.sos-contacts { text-align: left; display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.sos-label { font-weight: 700; font-size: 0.85rem; }
+.sos-contact { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: var(--surface-2); border-radius: 12px; }
+.sos-contact > div { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.sos-contact span { font-size: 0.8rem; color: var(--muted); }
+.sos-contact .btn { text-decoration: none; }
+
+/* Profile: emergency contacts */
+.contacts-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.contact-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.contact-list li { display: flex; align-items: center; gap: 12px; padding: 8px 8px 8px 14px; background: var(--surface-2); border-radius: 12px; }
+.contact-list li > div { flex: 1; display: flex; flex-direction: column; }
+.contact-list span { font-size: 0.82rem; color: var(--muted); }
+.contact-list .icon-btn { width: 36px; height: 36px; }
+
+/* Event page entry point */
+.live-entry {
+  display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 18px;
+  background: #15171c; color: #fff; border: 1.5px solid var(--outline);
+}
+.live-entry > div { flex: 1; min-width: 0; }
+.live-entry p { font-size: 0.82rem; color: #9aa3b5; }
+.live-entry .icon { color: #22c55e; flex: none; }
+
+@keyframes blink { 50% { opacity: 0.3; } }
+@keyframes ping { from { transform: scale(0.6); opacity: 1; } to { transform: scale(1.4); opacity: 0; } }
+
+@media (max-width: 960px) {
+  .live-grid { grid-template-columns: 1fr; }
+  .live-map { height: 320px; }
+}
+@media (max-width: 560px) {
+  .night-controls { grid-template-columns: 1fr; }
+  .night-stats strong { font-size: 1.05rem; }
+}
+
+.sos-contact { flex-wrap: wrap; }
+.sos-contact > div { flex: 1 1 130px; }
+.sos-contact span { white-space: nowrap; }
+
+/* ---------- Check-in mode (games / pro events) ---------- */
+.basic-card { padding: 22px; display: flex; flex-direction: column; gap: 14px; }
+.basic-card h3 { font-size: 1.1rem; }
+.safety-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.safety-steps li { display: flex; gap: 12px; align-items: flex-start; }
+.safety-steps li > span {
+  flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--yellow); border: 1.5px solid var(--outline); font-weight: 800; font-size: 0.85rem;
+}
+.safety-steps p { color: var(--muted); font-size: 0.86rem; }
+.basic-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.basic-stats div { background: var(--surface-2); border-radius: 14px; padding: 12px; text-align: center; display: flex; flex-direction: column; }
+.basic-stats strong { font-size: 1.4rem; }
+.basic-stats span { font-size: 0.8rem; color: var(--muted); }
+.basic-controls { display: flex; flex-direction: column; gap: 10px; }
+.basic-controls .night-ping { background: var(--surface-2); border-color: var(--border); }
+.basic-controls .night-ping p { color: var(--muted); }
+.basic-controls .btn-ghost-dark { color: var(--ink); border-color: var(--outline); }
+
+
+/* ---------- Group radar (replaces the street map) ---------- */
+.radar {
+  position: relative; height: 400px; display: grid; place-items: center;
+  background: radial-gradient(circle at center, #1b2230 0%, #11141a 70%);
+}
+.radar svg { width: 100%; height: 100%; max-width: 400px; overflow: visible; }
+.radar-safe { fill: rgba(34, 197, 94, 0.14); stroke: #22c55e; stroke-width: 1.5; stroke-dasharray: 5 4; transition: r 0.3s; }
+.radar-ring { fill: none; stroke: #2c3442; stroke-width: 1; }
+.radar-ring-label { fill: #6b7588; font-size: 9px; font-weight: 600; }
+.radar-axis { stroke: #232a36; stroke-width: 1; }
+
+.radar-dot { transition: transform 0.5s linear; }
+.radar-core { fill: #22c55e; stroke: #fff; stroke-width: 2.5; }
+.radar-dot.me .radar-core { fill: #3b82f6; }
+.radar-dot.host .radar-core { fill: #f6d56a; }
+.radar-dot.outside .radar-core, .radar-dot.sos .radar-core { fill: #ef4444; }
+.radar-pulse { fill: none; stroke: #ef4444; stroke-width: 2; transform-box: fill-box; transform-origin: center; animation: ping 1.4s infinite; }
+.radar-label { fill: #fff; font-size: 10px; font-weight: 700; paint-order: stroke; stroke: rgba(10, 12, 16, 0.85); stroke-width: 4px; }
+.lg-yellow { background: #f6d56a; }
+
+/* ---------- I'm safe / SOS inside the side column ---------- */
+.safety-actions { display: flex; gap: 10px; padding: 12px; }
+.safety-actions .btn { flex: 1; padding: 14px; font-size: 1rem; border-radius: 16px; }
+.safety-actions .btn-sos { flex: 0 0 38%; box-shadow: 0 8px 20px rgba(229, 72, 77, 0.3); }
+
+@keyframes sweep { to { transform: rotate(-360deg); } }
+
+@media (max-width: 960px) {
+  .radar { height: 330px; }
+  /* On phones, keep SOS near the top, right under the radar */
+  .live-side .safety-actions { order: -1; }
+}
+
+/* Legend sits under the radar instead of on top of it */
+.night-map .night-legend {
+  position: static; flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 6px 16px;
+  background: #11141a; border-radius: 0; padding: 10px 12px; border-top: 1px solid #262a33;
+}
+.night-mode { left: 14px; }
+
+/* ---------- Timing + drop-outs ---------- */
+.live-entry.locked { background: var(--surface); color: var(--ink); border-style: dashed; }
+.live-entry.locked p { color: var(--muted); }
+.live-entry.locked .icon { color: var(--muted); }
+.live-dot-inline { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #22c55e; margin-right: 4px; vertical-align: 1px; animation: blink 1.2s infinite; }
+.tag-live { background: #e5484d; color: #fff; }
+
+.member-list li.dim { opacity: 0.6; }
+.safety-actions { flex-wrap: wrap; }
+.safety-actions .leave-early { flex: 1 1 100%; padding: 10px; font-size: 0.9rem; border-radius: 12px; }
+.checked-out-note { flex: 1; display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--green); padding: 0 6px; }

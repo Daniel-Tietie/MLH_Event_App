@@ -1,0 +1,34 @@
+.map { width: 100%; height: 360px; background: #e9ebf2; z-index: 0; }
+.map-tall { height: min(70vh, 620px); }
+
+/* Emoji pins */
+.map-pin {
+  width: 40px; height: 40px; margin-top: 2px;
+  display: grid; place-items: center;
+  background: #fff; border: 2px solid var(--outline);
+  border-radius: 50% 50% 50% 6px; transform: rotate(-45deg);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+  transition: transform 0.15s;
+}
+.map-pin span { transform: rotate(45deg); font-size: 1.15rem; line-height: 1; }
+.map-pin:hover { transform: rotate(-45deg) scale(1.1); }
+.map-pin.pro { background: #ffe7d6; }
+.map-pin.picked { background: var(--yellow); }
+
+/* Blue "you are here" dot */
+.map-you {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: #3b82f6; border: 3px solid #fff;
+  box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.25);
+}
+
+.map-hint {
+  position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 500;
+  background: var(--outline); color: #fff; font-size: 0.8rem; font-weight: 700;
+  padding: 7px 12px; border-radius: 999px; pointer-events: none; white-space: nowrap;
+}
+
+.leaflet-tooltip { font-family: inherit; font-weight: 700; border-radius: 8px; }
+.leaflet-container { font-family: inherit; }
+
+.leaflet-tile-pane { filter: saturate(0.7) brightness(1.04); }
