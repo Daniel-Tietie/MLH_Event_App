@@ -235,7 +235,7 @@ create or replace function leave_activity(p_activity uuid) returns void
 language plpgsql security definer set search_path = public as $$
 begin
   delete from activity_participants   -- delete (not status='left') so the user can rejoin without a primary-key clash
-   where activity_id = p_activity and user_id = auth.uid() and status = 'joined';
+   where activity_id = p_activity and user_id = auth.uid() and status in ('joined', 'checked_in');
   if not found then
     raise exception 'You are not signed up for this activity';
   end if;

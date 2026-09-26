@@ -100,3 +100,26 @@ language sql stable set search_path = public, extensions as $$
      and ST_DWithin(a.location, ST_SetSRID(ST_MakePoint(p_lng, p_lat), 4326)::geography, p_radius_km * 1000)
    order by a.starts_at;
 $$;
+
+-- ---------- Read-only views for the frontend ----------
+-- PostgREST returns geography columns as hex, so these expose lat/lng (and the route as GeoJSON) as plain values.
+-- security_invoker = true means RLS on the underlying tables still applies to whoever is querying.
+create or replace view activity_details with (security_invoker = true) as
+select a.id, a.host_id, h.full_name as host_name, h.is_verified as host_verified,
+       a.sport_id, s.name as sport_name, a.title, a.description, a.type, a.opponent_team,
+       a.city, a.address, a.starts_at, a.max_participants,
+       c.n::int as joined_count, (a.max_participants - c.n)::int as spots_left,
+       a.status, a.night_mode, a.corridor_radius_m, a.checkin_interval_s,
+       st_y(a.location::geometry) as lat, st_x(a.location::geometry) as lng,
+       case when a.route is null then null else st_asgeojson(a.route::geometry)::json end as route_geojson
+  from activities a
+  join profiles h on h.id = a.host_id
+  join sports s on s.id = a.sport_id
+  cross join lateral (select count(*) as n from activity_participants p
+                       where p.activity_id = a.id and p.status <> 'left') c;
+
+create or replace view live_positions with (security_invoker = true) as
+select l.activity_id, l.user_id, p.full_name,
+       st_y(l.position::geometry) as lat, st_x(l.position::geometry) as lng, l.updated_at
+  from live_locations l
+  join profiles p on p.id = l.user_id;
