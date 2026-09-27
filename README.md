@@ -6,7 +6,7 @@ Rally is a web app that helps people meet through sport. Hosts post casual or co
 
 Built in about 18 hours by a team of two at an MLH hackathon.
 
-**Live demo:** [rally.vercel.app](https://rally.vercel.app)
+**Live demo:** [rally.vercel.app](https://rally-app-teal.vercel.app/)
 
 ---
 
