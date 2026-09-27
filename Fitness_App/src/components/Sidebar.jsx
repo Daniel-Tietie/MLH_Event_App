@@ -33,7 +33,7 @@ export default function Sidebar({ user, active, onNavigate, open, onClose, badge
         </div>
 
         <button className="user-card" onClick={() => onNavigate('profile')}>
-          <Avatar name={name} size={42} />
+          <Avatar name={name} url={user.user_metadata?.avatar_url} size={42} />
           <div className="user-card-text">
             <strong>{name}</strong>
             <span>{user.email}</span>

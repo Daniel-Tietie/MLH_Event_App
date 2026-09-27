@@ -323,3 +323,55 @@ export function subscribeDms(me, callback) {
     }
   }
 }
+
+// ---------- Profile picture ----------
+// Centre-crops to a square, shrinks to 512px, uploads to avatars/<userId>/<time>.jpg,
+// then saves the URL on the profile and on the login session (so the sidebar updates too).
+async function squareJpeg(file, size = 512) {
+  const url = URL.createObjectURL(file)
+  try {
+    const img = await new Promise((resolve, reject) => {
+      const i = new Image()
+      i.onload = () => resolve(i)
+      i.onerror = () => reject(new Error("Couldn't read that image"))
+      i.src = url
+    })
+    const side = Math.min(img.width, img.height)
+    const canvas = document.createElement('canvas')
+    canvas.width = canvas.height = Math.min(size, side)
+    canvas.getContext('2d').drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, canvas.width, canvas.height)
+    return await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.85))
+  } finally {
+    URL.revokeObjectURL(url)
+  }
+}
+
+async function saveAvatarUrl(userId, avatarUrl) {
+  const { error } = await supabase.from('profiles').update({ avatar_url: avatarUrl }).eq('id', userId)
+  if (error) throw new Error(error.message)
+  await supabase.auth.updateUser({ data: { avatar_url: avatarUrl } }) // refreshes session.user
+}
+
+async function clearOldAvatars(userId, keep) {
+  const { data } = await supabase.storage.from('avatars').list(userId)
+  const old = (data || []).map((f) => `${userId}/${f.name}`).filter((p) => p !== keep)
+  if (old.length) await supabase.storage.from('avatars').remove(old)
+}
+
+export async function uploadAvatar(userId, file) {
+  if (!file?.type?.startsWith('image/')) throw new Error('Please choose an image')
+  if (file.size > 15 * 1024 * 1024) throw new Error('That image is too big (max 15 MB)')
+  const blob = await squareJpeg(file)
+  const path = `${userId}/${Date.now()}.jpg`
+  const { error } = await supabase.storage.from('avatars').upload(path, blob, { contentType: 'image/jpeg', upsert: true })
+  if (error) throw new Error(error.message)
+  const { data } = supabase.storage.from('avatars').getPublicUrl(path)
+  await saveAvatarUrl(userId, data.publicUrl)
+  clearOldAvatars(userId, path).catch(() => {})
+  return data.publicUrl
+}
+
+export async function removeAvatar(userId) {
+  await saveAvatarUrl(userId, null)
+  clearOldAvatars(userId, null).catch(() => {})
+}

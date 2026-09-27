@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Icon from '../components/Icon'
 import { Avatar } from '../components/Avatar'
 import { getProfile, setUserSports, updateProfile, verifyIdentityMock } from '../services/api'
-import { fetchActivityHistory } from '../services/activityService'
+import { fetchActivityHistory, removeAvatar, uploadAvatar } from '../services/activityService'
 import { formatDate, sportColors, sportIcon } from '../utils/constants'
 import EmergencyContacts from '../components/EmergencyContacts'
 import { reliabilityLevel, useReliability } from '../components/Reliability'
@@ -28,6 +28,47 @@ export default function ProfilePage({ session, data, notify, openEvent }) {
   const [verifying, setVerifying] = useState(false)
   const [error, setError] = useState(null)
   const [history, setHistory] = useState(null)
+  const [photoBusy, setPhotoBusy] = useState(false)
+  const photoInput = useRef(null)
+  const [photoMenu, setPhotoMenu] = useState(false)
+  const photoMenuRef = useRef(null)
+
+  // Close the photo menu when clicking anywhere else or pressing Escape
+  useEffect(() => {
+    if (!photoMenu) return
+    const onDown = (e) => { if (!photoMenuRef.current?.contains(e.target)) setPhotoMenu(false) }
+    const onKey = (e) => e.key === 'Escape' && setPhotoMenu(false)
+    document.addEventListener('mousedown', onDown)
+    document.addEventListener('keydown', onKey)
+    return () => { document.removeEventListener('mousedown', onDown); document.removeEventListener('keydown', onKey) }
+  }, [photoMenu])
+
+  async function changePhoto(file) {
+    if (!file) return
+    setPhotoBusy(true)
+    try {
+      const url = await uploadAvatar(session.user.id, file)
+      setProfile((p) => ({ ...p, avatarUrl: url }))
+      notify('Profile picture updated', 'success')
+      data.reload()
+    } catch (e) {
+      notify(e.message, 'error')
+    }
+    setPhotoBusy(false)
+  }
+
+  async function clearPhoto() {
+    setPhotoBusy(true)
+    try {
+      await removeAvatar(session.user.id)
+      setProfile((p) => ({ ...p, avatarUrl: null }))
+      notify('Profile picture removed', 'info')
+      data.reload()
+    } catch (e) {
+      notify(e.message, 'error')
+    }
+    setPhotoBusy(false)
+  }
 
   useEffect(() => {
     getProfile()
@@ -92,7 +133,40 @@ export default function ProfilePage({ session, data, notify, openEvent }) {
   return (
     <div className="page profile">
       <header className="profile-head card">
-        <Avatar name={form.fullName} url={profile.avatarUrl} size={76} />
+        <div className="avatar-edit" ref={photoMenuRef}>
+          <button
+            type="button"
+            className="avatar-btn"
+            onClick={() => setPhotoMenu((v) => !v)}
+            disabled={photoBusy}
+            aria-haspopup="menu"
+            aria-expanded={photoMenu}
+            aria-label="Change profile picture"
+          >
+            <Avatar name={form.fullName} url={profile.avatarUrl} size={76} />
+            <span className="avatar-hover">{photoBusy ? <span className="spinner" /> : <><Icon name="camera" size={18} />Change</>}</span>
+          </button>
+          {photoMenu && (
+            <div className="avatar-menu" role="menu">
+              <button role="menuitem" onClick={() => { setPhotoMenu(false); photoInput.current?.click() }}>
+                <Icon name="camera" size={16} /> {profile.avatarUrl ? 'Upload new photo' : 'Upload photo'}
+              </button>
+              {profile.avatarUrl && (
+                <button role="menuitem" onClick={() => { setPhotoMenu(false); clearPhoto() }}>
+                  <span className="avatar-menu-initials">{(form.fullName || '?').split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()}</span>
+                  Use default
+                </button>
+              )}
+            </div>
+          )}
+          <input
+            ref={photoInput}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            hidden
+            onChange={(e) => { changePhoto(e.target.files?.[0]); e.target.value = '' }}
+          />
+        </div>
         <div>
           <h1>{form.fullName || 'Your profile'}</h1>
           <p className="muted">{form.city || 'Add your city'}</p>

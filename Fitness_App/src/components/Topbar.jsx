@@ -13,7 +13,7 @@ export default function Topbar({ user, onMenu }) {
         <span className="brand-mark">⚡</span>
         {APP_NAME}
       </div>
-      <Avatar name={user.user_metadata?.full_name || user.email} size={38} />
+      <Avatar name={user.user_metadata?.full_name || user.email} url={user.user_metadata?.avatar_url} size={38} />
     </header>
   )
 }
