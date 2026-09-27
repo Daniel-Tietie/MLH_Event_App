@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSession } from './hooks/useSession'
 import { useActivities } from './hooks/useActivities'
-import { fetchCommentedIds, fetchRequestUpdates, fetchWaitingCounts, getMyQrToken, hostCheckIn, joinActivity, leaveActivity, markRequestSeen, setActivityStatus } from './services/activityService'
+import { fetchCommentedIds, fetchRequestUpdates, fetchUnreadDmCount, subscribeDms, fetchWaitingCounts, getMyQrToken, hostCheckIn, joinActivity, leaveActivity, markRequestSeen, setActivityStatus } from './services/activityService'
 import Sidebar from './components/Sidebar'
 import Topbar from './components/Topbar'
 import Toast from './components/Toast'
@@ -228,6 +228,21 @@ function Main({ session }) {
     snooze: (a) => setReqSnoozed((s) => ({ ...s, [a.id]: Date.now() + 30 * 60e3 })),
   }
 
+  // ---------- Direct messages: unread count for the sidebar ----------
+  const [dmUnread, setDmUnread] = useState(0)
+  const viewRef = useRef(view)
+  viewRef.current = view
+  const refreshUnread = useCallback(() => fetchUnreadDmCount(session.user.id).then(setDmUnread), [session.user.id])
+  useEffect(() => {
+    refreshUnread()
+    const off = subscribeDms(session.user.id, (m) => {
+      refreshUnread()
+      if (viewRef.current !== 'friends') notify('New message from a friend 💬', 'info')
+    })
+    const t = setInterval(refreshUnread, 15000)
+    return () => { off(); clearInterval(t) }
+  }, [refreshUnread]) // eslint-disable-line react-hooks/exhaustive-deps
+
   // ---------- Host "time's up" ----------
   // When an event reaches its end time, the host chooses: end it, or add 30 minutes.
   const [snoozed, setSnoozed] = useState({})
@@ -255,6 +270,7 @@ function Main({ session }) {
         onNavigate={navigate}
         open={drawer}
         onClose={() => setDrawer(false)}
+        badges={{ friends: dmUnread }}
       />
 
       <div className="main">
@@ -265,7 +281,7 @@ function Main({ session }) {
           {view === 'calendar' && <CalendarPage {...shared} />}
           {view === 'mine' && <MyEventsPage {...shared} />}
           {view === 'profile' && <ProfilePage {...shared} />}
-          {view === 'friends' && <FriendsPage {...shared} />}
+          {view === 'friends' && <FriendsPage {...shared} focus={route.focus} dmUnread={dmUnread} refreshUnread={refreshUnread} />}
           {view === 'create' && <CreateEventPage key={route.date || 'new'} {...shared} preset={{ date: route.date }} onCreated={() => { data.reload(); navigate('mine') }} />}
           {view === 'live' && (
             <LiveSafetyPage {...shared} event={data.activities.find((a) => a.id === route.id)} />

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import Icon from '../components/Icon'
 import { Avatar } from '../components/Avatar'
 import FriendsGoing from '../components/FriendsGoing'
+import Messages from '../components/Messages'
 import { fetchMyFollowers, fetchPlayedWith, followUser, removeFollower, unfollowUser } from '../services/activityService'
 import { refreshFollowing } from '../hooks/useFollowing'
 import { activePeople, formatDate, formatTime, isNotOver, sportIcon } from '../utils/constants'
@@ -9,6 +10,7 @@ import '../styles/features.css'
 import '../styles/explore.css'
 
 const TABS = [
+  ['messages', 'Messages'],
   ['following', 'Following'],
   ['followers', 'Followers'],
   ['played', 'Played with'],
@@ -18,9 +20,13 @@ const TABS = [
  * Friends: who you follow, who follows you, and everyone you've played with.
  * Only you can see these lists. Mutual follows are marked "Friends".
  */
-export default function FriendsPage({ session, data, notify, openEvent, navigate }) {
+export default function FriendsPage({ session, data, notify, openEvent, focus, dmUnread = 0, refreshUnread }) {
   const userId = session.user.id
-  const [tab, setTab] = useState('following')
+  // "#/friends?focus=dm:<userId>" opens that chat directly
+  const dmWith = focus?.startsWith('dm:') ? focus.slice(3) : null
+  const [tab, setTab] = useState(dmWith ? 'messages' : 'following')
+  const [chatWith, setChatWith] = useState(dmWith)
+  useEffect(() => { if (dmWith) { setTab('messages'); setChatWith(dmWith) } }, [dmWith])
   const [played, setPlayed] = useState(null)
   const [followers, setFollowers] = useState(null)
   const [busy, setBusy] = useState(null)
@@ -67,11 +73,15 @@ export default function FriendsPage({ session, data, notify, openEvent, navigate
     setBusy(null)
   }
 
+  // Friends = you follow each other (the only people you can message)
+  const friends = followingList.filter((p) => followerIds.has(p.user_id))
+  const message = (p) => { setChatWith(p.user_id); setTab('messages') }
+
   if (played === null || followers === null) {
     return <div className="page"><p className="muted">Loading friends...</p></div>
   }
 
-  const lists = { following: followingList, followers, played }
+  const lists = { messages: friends, following: followingList, followers, played }
   const list = lists[tab]
 
   const empty = {
@@ -90,15 +100,31 @@ export default function FriendsPage({ session, data, notify, openEvent, navigate
         <div className="segmented">
           {TABS.map(([id, label]) => (
             <button key={id} className={tab === id ? 'active' : ''} onClick={() => setTab(id)}>
-              {label} ({lists[id].length})
+              {id === 'messages' ? label : `${label} (${lists[id].length})`}
+              {id === 'messages' && dmUnread > 0 && <span className="tab-badge">{dmUnread}</span>}
             </button>
           ))}
         </div>
       </header>
 
-      <p className="muted small rel-hint"><Icon name="shield" size={16} /> Only you can see who follows you and who you follow.</p>
+      <p className="muted small rel-hint">
+        <Icon name="shield" size={16} />
+        {tab === 'messages'
+          ? 'You can only message friends (you follow each other). No messages from strangers.'
+          : 'Only you can see who follows you and who you follow.'}
+      </p>
 
-      {list.length === 0 ? (
+      {tab === 'messages' ? (
+        <Messages
+          userId={userId}
+          friends={friends}
+          activities={data.activities}
+          openEvent={openEvent}
+          notify={notify}
+          openWith={chatWith}
+          onRead={refreshUnread}
+        />
+      ) : list.length === 0 ? (
         <div className="empty">
           <div className="empty-icon"><Icon name={empty[0]} size={26} /></div>
           <h3>{empty[1]}</h3>
@@ -135,6 +161,11 @@ export default function FriendsPage({ session, data, notify, openEvent, navigate
                 </div>
 
                 <div className="friend-actions">
+                  {mutual && (
+                    <button className="btn btn-ghost btn-sm" onClick={() => message(p)} aria-label={`Message ${p.full_name}`}>
+                      <Icon name="chat" size={16} />
+                    </button>
+                  )}
                   {tab === 'followers' && (
                     <button className="btn btn-ghost btn-sm btn-remove" disabled={busy === p.user_id} onClick={() => run(p, 'remove')}>
                       Remove
@@ -157,7 +188,7 @@ export default function FriendsPage({ session, data, notify, openEvent, navigate
         </ul>
       )}
 
-      <FriendsGoing session={session} activities={data.activities} openEvent={openEvent} />
+      {tab !== 'messages' && <FriendsGoing session={session} activities={data.activities} openEvent={openEvent} />}
     </div>
   )
 }

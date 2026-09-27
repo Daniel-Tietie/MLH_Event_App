@@ -15,7 +15,7 @@ const NAV = [
 ]
 
 // Left menu on desktop, slide-out drawer on phones
-export default function Sidebar({ user, active, onNavigate, open, onClose }) {
+export default function Sidebar({ user, active, onNavigate, open, onClose, badges = {} }) {
   const name = user.user_metadata?.full_name || 'Player'
 
   return (
@@ -49,6 +49,7 @@ export default function Sidebar({ user, active, onNavigate, open, onClose }) {
             >
               <Icon name={item.icon} />
               {item.label}
+              {badges[item.id] > 0 && <span className="side-badge">{badges[item.id]}</span>}
             </button>
           ))}
         </nav>

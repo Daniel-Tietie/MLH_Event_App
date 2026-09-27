@@ -211,3 +211,50 @@
 .page-head .segmented button { flex: none; white-space: nowrap; }
 .btn-remove:hover:not(:disabled) { color: var(--danger); background: #fdecec; border-color: #f5c2c3; }
 .played-list + .section { margin-top: 28px; }
+
+/* ---------- Direct messages ---------- */
+.dm { display: grid; grid-template-columns: 300px 1fr; padding: 0; overflow: hidden; min-height: 480px; }
+.dm-list { border-right: 1px solid var(--border); overflow-y: auto; max-height: 560px; padding: 8px; display: flex; flex-direction: column; gap: 2px; }
+.dm-thread {
+  display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px; border: 0; border-radius: 12px;
+  background: none; cursor: pointer; text-align: left; font: inherit; color: var(--ink);
+}
+.dm-thread:hover { background: var(--surface-2); }
+.dm-thread.active { background: var(--primary-soft); }
+.dm-thread-text { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.dm-thread-text > span { font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dm-thread-text .unread { color: var(--ink); font-weight: 700; }
+.dm-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex: none; font-size: 0.72rem; color: var(--muted); }
+.dm-badge { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--primary); color: #fff; font-size: 0.68rem; font-weight: 800; display: grid; place-items: center; }
+.dm-sub { margin: 10px 10px 4px; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+.dm-chat { display: flex; flex-direction: column; min-width: 0; }
+.dm-head { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--border); }
+.dm-head > div { display: flex; flex-direction: column; }
+.dm-head .dm-back { display: none; }
+.dm-msgs { flex: 1; height: auto; min-height: 320px; max-height: 440px; }
+.dm-placeholder { margin: auto; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 40px; text-align: center; }
+.dm-event {
+  display: flex; align-items: center; gap: 10px; width: 100%; min-width: 220px; margin-bottom: 4px; padding: 8px 10px;
+  border: 1px solid var(--border); border-radius: 12px; background: var(--surface); color: var(--ink);
+  cursor: pointer; text-align: left; font: inherit;
+}
+.dm-event > span:nth-child(2) { display: flex; flex-direction: column; flex: 1; min-width: 0; font-size: 0.78rem; color: var(--muted); }
+.dm-event strong { color: var(--ink); font-size: 0.88rem; }
+.dm-event-icon { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; font-size: 1.2rem; flex: none; }
+.dm-picker { padding: 10px 12px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; background: var(--surface); }
+.dm-picker p { margin: 0; }
+.dm-pick { text-align: left; padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); cursor: pointer; font: inherit; font-size: 0.85rem; font-weight: 600; color: var(--ink); }
+.dm-pick:hover { border-color: var(--primary); }
+.dm-share { flex: none; }
+.dm-share.active { background: var(--primary-soft); color: var(--primary); }
+.dm-locked { padding: 12px 14px; margin: 0; border-top: 1px solid var(--border); text-align: center; }
+.tab-badge { margin-left: 6px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--danger); color: #fff; font-size: 0.68rem; font-weight: 800; display: inline-grid; place-items: center; }
+.side-badge { margin-left: auto; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--danger); color: #fff; font-size: 0.72rem; font-weight: 800; display: grid; place-items: center; }
+@media (max-width: 760px) {
+  .dm { grid-template-columns: 1fr; }
+  .dm-list { border-right: 0; max-height: none; }
+  .dm.has-active .dm-list { display: none; }
+  .dm:not(.has-active) .dm-chat { display: none; }
+  .dm-head .dm-back { display: grid; }
+  .dm-msgs { max-height: 55vh; }
+}

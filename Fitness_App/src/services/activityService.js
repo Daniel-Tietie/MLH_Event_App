@@ -274,3 +274,52 @@ export async function fetchFollowing(userId) {
 // People who follow me: [{ user_id, full_name, avatar_url, is_verified, since, following_back }]
 export const fetchMyFollowers = () => rpc('my_followers', {})
 export const removeFollower = (userId) => rpc('remove_follower', { p_user: userId })
+
+// ---------- Direct messages (friends only) ----------
+export const fetchDmThreads = () => rpc('dm_threads', {})
+export const sendDm = (toId, body, activityId = null) => rpc('send_dm', { p_to: toId, p_body: body, p_activity: activityId })
+export const markDmRead = (fromId) => rpc('mark_dm_read', { p_from: fromId })
+
+export async function fetchConversation(me, other) {
+  const { data, error } = await supabase
+    .from('direct_messages')
+    .select('id, sender_id, recipient_id, body, activity_id, created_at, read_at')
+    .or(`and(sender_id.eq.${me},recipient_id.eq.${other}),and(sender_id.eq.${other},recipient_id.eq.${me})`)
+    .order('created_at', { ascending: true })
+    .limit(300)
+  if (error) throw new Error(error.message)
+  return data || []
+}
+
+export async function fetchUnreadDmCount(me) {
+  const { count, error } = await supabase
+    .from('direct_messages')
+    .select('id', { count: 'exact', head: true })
+    .eq('recipient_id', me)
+    .is('read_at', null)
+  return error ? 0 : count || 0
+}
+
+// Calls back whenever someone sends me a message (Realtime). Returns an unsubscribe function.
+// Several parts of the app listen at once (sidebar badge, conversation list, open chat), so they
+// all share ONE channel. Supabase won't add listeners to a channel after it has subscribed.
+const dmListeners = new Set()
+let dmChannel = null
+
+export function subscribeDms(me, callback) {
+  dmListeners.add(callback)
+  if (!dmChannel) {
+    dmChannel = supabase
+      .channel(`dm:${me}:${Math.random().toString(36).slice(2, 8)}`)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'direct_messages', filter: `recipient_id=eq.${me}` },
+        (p) => dmListeners.forEach((fn) => fn(p.new)))
+      .subscribe()
+  }
+  return () => {
+    dmListeners.delete(callback)
+    if (!dmListeners.size && dmChannel) {
+      supabase.removeChannel(dmChannel)
+      dmChannel = null
+    }
+  }
+}
