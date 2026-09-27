@@ -132,3 +132,13 @@
 .card-grid.past .ecard { opacity: 0.75; }
 .card-grid.past .ecard:hover { opacity: 1; }
 .ecard-head .pill { font-size: 0.68rem; padding: 3px 8px; }
+
+/* Calendar: finished or cancelled events are faded so upcoming ones stand out */
+.day-scroll .ecard:has(.status-completed),
+.day-scroll .ecard:has(.status-cancelled) {
+  opacity: 0.55;
+}
+.day-scroll .ecard:has(.status-completed):hover,
+.day-scroll .ecard:has(.status-cancelled):hover {
+  opacity: 1;
+}
