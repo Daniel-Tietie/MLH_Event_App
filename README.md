@@ -6,7 +6,7 @@ Rally is a web app that helps people meet through sport. Hosts post casual or co
 
 Built in about 18 hours by a team of two at an MLH hackathon.
 
-**Live demo:** [rally.vercel.app](https://rally-app-teal.vercel.app/)
+**Live demo:** [rally-app-teal.vercel.app](https://rally-app-teal.vercel.app/)
 
 ---
 
@@ -69,6 +69,11 @@ Rally covers the whole journey:
 - **Comments and photos** after the event, from the host and people who checked in. Every photo shows who posted it.
 - **Profile:** photo, sports and levels, activity history, and ID verification.
 
+### Smartwatch
+- **Pair a watch** (Apple Watch, Wear OS, Garmin, Fitbit) for wrist SOS and safety check-ins, so they still reach you when your phone is in your bag.
+- **Weekly fitness summary:** distance, active time, heart rate and calories, with a daily distance chart.
+- **Every Rally event becomes a workout** with its real start and end time, plus pace or speed, heart rate and calories.
+
 ### Privacy and moderation
 - Comments, photos and chat are visible **only to event members**, and photos are stored in a private bucket with expiring links.
 - **Report a photo:** three reports hide it automatically, and the host can hide or restore it.
@@ -101,8 +106,8 @@ Rally covers the whole journey:
 
 1. **Install**
    ```bash
-   git clone <this repo>
-   cd Fitness_App
+   git clone https://github.com/Daniel-Tietie/MLH_Event_App.git
+   cd MLH_Event_App/Fitness_App
    npm install
    ```
 2. **Environment:** copy `.env.example` to `.env` and fill it in:
@@ -111,7 +116,12 @@ Rally covers the whole journey:
    VITE_SUPABASE_ANON_KEY=    # Supabase -> Project Settings -> API
    VITE_CARTO_KEY=            # optional, free at carto.com (falls back to OpenStreetMap)
    ```
-3. **Database:** in the Supabase SQL Editor, run `supabase/schema.sql` (the full structure). Optionally run `supabase/seed-demo-events.sql` for sample events.
+3. **Database:** in the Supabase SQL Editor, run these in order:
+   1. `supabase/00-base-schema.sql`: core tables and basic security rules
+   2. `supabase/ALL-IN-ONE.sql`: every feature on top (waitlist, friends, messages, safety, privacy)
+   3. Optional: sign up in the app, put your email in `supabase/seed-demo-events.sql`, then run it for sample events
+
+   All three are safe to run again.
 4. **Run**
    ```bash
    npm run dev
@@ -124,15 +134,15 @@ Rally covers the whole journey:
 
 ```text
 src/
-  pages/        Explore, Nearby, Calendar, My events, Friends, Host, Profile, Event detail, Live safety, Auth
+  pages/        Explore, Nearby, Calendar, My events, Friends, Host, Smartwatch, Profile, Event detail, Live safety, Auth
   components/   Event cards, chat, messages, comments/photos, radar, requests/waitlist, weather, notifications...
   services/     Supabase calls (activities, safety, weather, auth)
   hooks/        Session, events, following
-  utils/        Constants, geo helpers, recommendations, safety simulation
+  utils/        Constants, geo helpers, recommendations, safety and fitness simulation
 supabase/
-  schema.sql            full database structure
-  seed-demo-events.sql  sample data
-  migrations/           the SQL for each feature, in the order it was added
+  00-base-schema.sql    core tables, types and security rules (run first)
+  ALL-IN-ONE.sql        every feature on top (run second)
+  seed-demo-events.sql  optional sample events
 ```
 
 ---
@@ -143,6 +153,7 @@ We want to be upfront about this:
 - **ID verification** shows the flow, but no real ID check happens and no document is stored. A real version would use an ID provider (for example Stripe Identity).
 - **Live location on the group radar** is simulated. A real version would use the phone's location with consent, only during the event window.
 - **SOS** alerts the group in the app and opens your contacts. It doesn't contact emergency services.
+- **Smartwatch pairing and fitness data** are simulated. A real version would use Apple HealthKit or Google Health Connect, only with your permission.
 
 ## What's next
 
@@ -155,7 +166,7 @@ We want to be upfront about this:
 
 ## Team
 
-- **Ashok Kumar** <!-- role -->
-- **Daniel Tietie** <!-- role -->
+- **Ashok Kumar**
+- **Daniel Tietie**
 
-Built at an MLH hackathon, September 2026.
+Built at an MLH hackathon @UNB, September 2026.
