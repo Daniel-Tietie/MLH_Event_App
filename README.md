@@ -153,7 +153,7 @@ We want to be upfront about this:
 
 ## Team
 
-- **Ashok Kumar** — <!-- role -->
-- **<!-- teammate name -->** — <!-- role -->
+- **Ashok Kumar** <!-- role -->
+- **Daniel Tietie** <!-- role -->
 
 Built at an MLH hackathon, September 2026.
