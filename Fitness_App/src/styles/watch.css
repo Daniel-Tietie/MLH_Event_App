@@ -1,0 +1,99 @@
+/* ---------- Smartwatch page ---------- */
+.watch-hero { display: grid; grid-template-columns: 300px 1fr; gap: 36px; align-items: center; padding: 32px 36px; }
+.watch-panel { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; max-width: 460px; }
+.watch-panel h2 { display: flex; align-items: center; gap: 10px; font-size: 1.5rem; margin: 0; }
+.watch-panel p { margin: 0; line-height: 1.5; }
+.watch-compat { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0; padding: 0; }
+.watch-compat li { padding: 4px 10px; border-radius: 999px; background: var(--surface-2); font-weight: 700; }
+.watch-device {
+  display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px 16px; border-radius: 16px;
+  border: 1.5px solid var(--outline); background: var(--surface); cursor: pointer; font: inherit; color: var(--ink); text-align: left;
+}
+.watch-device > span:nth-child(2) { display: flex; flex-direction: column; flex: 1; }
+.watch-device:hover { background: var(--surface-2); }
+.watch-device-icon { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); }
+.watch-code { font-size: 2.4rem; font-weight: 800; letter-spacing: 0.12em; color: var(--ink); }
+.watch-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.watch-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px var(--green-soft); flex: none; }
+.watch-toggles { list-style: none; margin: 0; padding: 0; width: 100%; display: flex; flex-direction: column; }
+.watch-toggles li { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); font-weight: 600; }
+.watch-toggles li:last-child { border-bottom: 0; }
+
+.watch-features { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+.watch-feature { padding: 18px; display: flex; flex-direction: column; gap: 8px; }
+.watch-feature h3 { margin: 0; font-size: 1rem; }
+.watch-feature p { margin: 0; line-height: 1.5; }
+.watch-feature-icon { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); }
+.watch-privacy { display: flex; align-items: center; gap: 8px; margin-top: 14px; }
+
+/* The watch drawing */
+.watch-art { display: flex; flex-direction: column; align-items: center; justify-self: center; }
+.watch-strap { width: 128px; height: 70px; background: linear-gradient(180deg, #2b2f3a, #1b1e26); }
+.watch-strap-top { border-radius: 26px 26px 8px 8px; margin-bottom: -10px; }
+.watch-strap-bottom { border-radius: 8px 8px 26px 26px; margin-top: -10px; }
+.watch-case {
+  position: relative; z-index: 1; width: 196px; height: 234px; border-radius: 56px; padding: 12px;
+  background: linear-gradient(145deg, #3a3f4c, #15171d); box-shadow: 0 24px 50px rgba(20, 22, 30, 0.28), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+}
+.watch-crown { position: absolute; right: -9px; top: 58px; width: 12px; height: 38px; border-radius: 6px; background: linear-gradient(90deg, #555b69, #2a2e38); }
+.watch-button { position: absolute; right: -6px; top: 118px; width: 8px; height: 44px; border-radius: 4px; background: #2a2e38; }
+.watch-screen {
+  width: 100%; height: 100%; border-radius: 44px; background: #000; color: #fff; overflow: hidden;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-align: center;
+}
+.ws-logo { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; font-size: 1.5rem; background: var(--yellow); }
+.ws-title { font-size: 1.4rem; font-weight: 800; }
+.ws-sub { font-size: 0.8rem; color: #9aa0b0; font-weight: 600; }
+.ws-pill { margin-top: 8px; padding: 6px 12px; border-radius: 999px; background: var(--primary); font-size: 0.75rem; font-weight: 800; }
+.ws-code { font-size: 1.9rem; font-weight: 800; letter-spacing: 0.1em; line-height: 1.15; }
+.ws-time { font-size: 0.85rem; font-weight: 700; color: #9aa0b0; }
+.ws-heart { display: flex; align-items: center; gap: 6px; font-size: 2.2rem; font-weight: 800; color: #ff5a6a; animation: beat 1s ease-in-out infinite; }
+.ws-heart svg { fill: #ff5a6a; }
+.ws-sos { margin-top: 10px; padding: 6px 14px; border-radius: 999px; background: #e5484d; font-size: 0.72rem; font-weight: 800; }
+@keyframes beat { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.08); } }
+
+.ws-rings { position: relative; width: 120px; height: 120px; display: grid; place-items: center; }
+.ws-rings span { position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--primary); opacity: 0; animation: ring 2.1s ease-out infinite; }
+.ws-rings span:nth-child(2) { animation-delay: 0.7s; }
+.ws-rings span:nth-child(3) { animation-delay: 1.4s; }
+.ws-bt { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--primary); font-style: normal; font-weight: 800; }
+@keyframes ring { from { transform: scale(0.3); opacity: 1; } to { transform: scale(1.1); opacity: 0; } }
+.step-searching .watch-case { animation: nudge 2.1s ease-in-out infinite; }
+@keyframes nudge { 50% { transform: translateY(-3px); } }
+
+@media (max-width: 760px) {
+  .watch-hero { grid-template-columns: 1fr; padding: 24px 18px; gap: 24px; }
+  .watch-panel { align-items: stretch; }
+  .watch-art { transform: scale(0.85); margin: -20px 0; }
+}
+
+/* ---------- Fitness summary (synced from the watch) ---------- */
+.fit-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.fit-stat { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; }
+.fit-stat strong { font-size: 1.3rem; }
+.fit-stat-icon { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); margin-bottom: 4px; }
+.fit-chart { margin-top: 12px; padding: 16px 18px; }
+.fit-chart-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.fit-bars { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; height: 150px; margin-top: 12px; align-items: end; }
+.fit-bar-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; height: 100%; }
+.fit-bar { width: 100%; max-width: 42px; border-radius: 8px 8px 4px 4px; background: var(--primary); }
+.fit-bar[data-empty] { background: var(--border); }
+.fit-bar-val { font-size: 0.72rem; font-weight: 800; color: var(--ink); min-height: 1em; }
+.fit-bar-day { font-size: 0.75rem; color: var(--muted); font-weight: 600; }
+.fit-list-head { margin-top: 22px; }
+.fit-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.fit-list li.card { display: flex; align-items: center; gap: 14px; padding: 12px 16px; flex-wrap: wrap; }
+.fit-icon { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: var(--surface-2); font-size: 1.4rem; flex: none; }
+.fit-main { display: flex; flex-direction: column; min-width: 180px; flex: 1; }
+.fit-main strong { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.fit-tag { border: 0; cursor: pointer; font: inherit; font-size: 0.68rem; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: var(--primary-soft); color: var(--primary); }
+.fit-metrics { display: flex; gap: 18px; margin: 0; flex-wrap: wrap; }
+.fit-metrics dt { font-size: 0.7rem; color: var(--muted); font-weight: 600; }
+.fit-metrics dd { margin: 0; font-weight: 800; font-size: 0.92rem; white-space: nowrap; }
+.fit-metrics small { font-weight: 600; color: var(--muted); }
+.fit-spin { display: inline-block; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--border); border-top-color: var(--ink); animation: spin 0.8s linear infinite; vertical-align: -2px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (max-width: 760px) {
+  .fit-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fit-metrics { width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 14px; }
+}

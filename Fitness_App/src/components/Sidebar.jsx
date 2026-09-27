@@ -11,6 +11,7 @@ const NAV = [
   { id: 'mine', label: 'My events', icon: 'ticket' },
   { id: 'friends', label: 'Friends', icon: 'users' },
   { id: 'create', label: 'Host an event', icon: 'plusSquare' },
+  { id: 'watch', label: 'Smartwatch', icon: 'watch' },
   { id: 'profile', label: 'My profile', icon: 'user' },
 ]
 
