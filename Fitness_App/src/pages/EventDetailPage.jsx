@@ -5,6 +5,12 @@ import { Avatar, AvatarStack } from '../components/Avatar'
 import ChatPanel from '../components/ChatPanel'
 import Comments from '../components/Comments'
 import ChallengeBox from '../components/ChallengeBox'
+import { ReliabilityBadge, useReliability } from '../components/Reliability'
+import { JoinButton, JoinHint, RequestsPanel, WaitlistList } from '../components/JoinRequests'
+import { fetchWaitingCounts } from '../services/activityService'
+import WeatherChip from '../components/WeatherChip'
+import { useFollowing } from '../hooks/useFollowing'
+import '../styles/features.css'
 import { activePeople, eventEnd, eventPhase, formatLong, formatTime, isTracked, SAFETY_OPENS_MIN, sportColors, sportIcon, spotsLeft } from '../utils/constants'
 import '../styles/safety.css'
 import '../styles/detail.css'
@@ -14,6 +20,7 @@ export default function EventDetailPage({ session, event: a, data, actions, noti
 
   // Opened from a "leave a comment" notification: jump to the comment box
   useEffect(() => {
+    if (focus === 'requests' && a) return setTab('requests')
     if (focus !== 'comments' || !a) return
     setTab('overview')
     const t = setTimeout(() => {
@@ -28,6 +35,23 @@ export default function EventDetailPage({ session, event: a, data, actions, noti
     () => (a?.coords ? [{ id: a.id, ...a.coords, icon: sportIcon(a.sport?.name), title: a.title }] : []),
     [a?.id, a?.coords?.lat, a?.coords?.lng] // eslint-disable-line react-hooks/exhaustive-deps
   )
+
+  const following = useFollowing(session.user.id)
+
+  // Pro events: the host sees each player's show-up record
+  const showScores = !!a && a.category === 'professional' && a.host_id === session.user.id
+  const scores = useReliability(showScores ? (a.people || []).filter((p) => p.status !== 'left').map((p) => p.user_id) : [], showScores)
+
+  // Host of a pro event: how many requests are waiting (badge on the Requests tab)
+  const hostsPro = showScores
+  const [reqCount, setReqCount] = useState(0)
+  useEffect(() => {
+    if (!hostsPro) return
+    const load = () => fetchWaitingCounts([a.id]).then((c) => setReqCount(c[a.id]?.request || 0))
+    load()
+    const t = setInterval(load, 10000)
+    return () => clearInterval(t)
+  }, [hostsPro, a?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!a) {
     return (
@@ -65,6 +89,7 @@ export default function EventDetailPage({ session, event: a, data, actions, noti
           {a.night_mode && <span className="tag tag-night">🌙 Night</span>}
         </div>
         <span className={`status status-${a.status} hero-status`}>{a.status}</span>
+        {eventPhase(a) !== 'ended' && a.status !== 'cancelled' && <WeatherChip activity={a} />}
       </div>
 
       <h1 className="detail-title">{a.title}</h1>
@@ -84,7 +109,13 @@ export default function EventDetailPage({ session, event: a, data, actions, noti
       )}
 
       <div className="tabs">
-        {[['overview', 'Overview'], ['people', `People (${people.length})`], ['chat', 'Chat'], ['map', 'Map']].map(([id, label]) => (
+        {[
+          ['overview', 'Overview'],
+          ['people', `People (${people.length})`],
+          ...(hostsPro ? [['requests', `Requests${reqCount ? ` (${reqCount})` : ''}`]] : []),
+          ['chat', 'Chat'],
+          ['map', 'Map'],
+        ].map(([id, label]) => (
           <button key={id} className={tab === id ? 'active' : ''} onClick={() => setTab(id)}>{label}</button>
         ))}
       </div>
@@ -117,11 +148,19 @@ export default function EventDetailPage({ session, event: a, data, actions, noti
 
       {tab === 'people' && (
         <div className="tab-body">
+          {showScores && people.length > 0 && (
+            <p className="muted small rel-hint">
+              <Icon name="shield" size={16} /> Pro event: show-up scores are based on each player's QR check-ins at past pro events. Only you can see them.
+            </p>
+          )}
           <ul className="people">
             <li className="host-row">
               <Avatar name={a.host?.full_name} url={a.host?.avatar_url} size={40} />
               <div>
-                <strong>{isHost ? 'You' : a.host?.full_name || 'Host'}</strong>
+                <strong>
+                  {isHost ? 'You' : a.host?.full_name || 'Host'}
+                  {!isHost && following.has(a.host_id) && <span className="following-tag">Following</span>}
+                </strong>
                 {a.host?.is_verified && <span className="verified"><Icon name="check" size={12} /> Verified</span>}
               </div>
               <span className="pill pill-host">Host</span>
@@ -135,8 +174,12 @@ export default function EventDetailPage({ session, event: a, data, actions, noti
                 <li key={p.user_id}>
                   <Avatar name={p.profile?.full_name} url={p.profile?.avatar_url} size={40} />
                   <div>
-                    <strong>{p.user_id === userId ? 'You' : p.profile?.full_name || 'Player'}</strong>
+                    <strong>
+                      {p.user_id === userId ? 'You' : p.profile?.full_name || 'Player'}
+                      {following.has(p.user_id) && <span className="following-tag">Following</span>}
+                    </strong>
                     {p.profile?.is_verified && <span className="verified"><Icon name="check" size={12} /> Verified</span>}
+                    {showScores && <ReliabilityBadge stat={scores[p.user_id]} />}
                   </div>
                   {p.status === 'checked_in'
                     ? <span className="pill pill-green">Checked in</span>
@@ -145,6 +188,13 @@ export default function EventDetailPage({ session, event: a, data, actions, noti
               ))}
             </ul>
           )}
+          {isHost && a.category !== 'professional' && <WaitlistList activity={a} />}
+        </div>
+      )}
+
+      {tab === 'requests' && hostsPro && (
+        <div className="tab-body">
+          <RequestsPanel activity={a} notify={notify} onChange={data.reload} onCount={setReqCount} />
         </div>
       )}
 
@@ -222,12 +272,11 @@ export default function EventDetailPage({ session, event: a, data, actions, noti
               )}
             </>
           ) : (
-            <button className="btn btn-yellow btn-wide" disabled={a.status !== 'open'} onClick={() => actions.join(a.id)}>
-              {a.status === 'open' ? 'Join event' : 'Sign-ups closed'}
-            </button>
+            <JoinButton activity={a} onJoin={actions.join} notify={notify} onChange={data.reload} />
           )}
         </div>
       </div>
+      {!isHost && !me && <JoinHint activity={a} />}
       {isHost && <p className="muted small host-hint">To check people in, scan their QR code with your phone camera while you're signed in.</p>}
     </div>
   )

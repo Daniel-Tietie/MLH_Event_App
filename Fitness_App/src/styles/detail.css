@@ -21,7 +21,7 @@
 
 /* Overview / Attendees / Map */
 .tabs {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 5px;
+  display: grid; grid-auto-flow: column; grid-auto-columns: minmax(max-content, 1fr); gap: 4px; padding: 5px;
   background: var(--surface); border: 1.5px solid var(--outline); border-radius: 16px;
 }
 .tabs button {

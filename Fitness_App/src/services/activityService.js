@@ -7,7 +7,7 @@ export function fetchActivities() {
     .from('activities')
     .select(`
       id, host_id, title, description, type, category, opponent_team, city, address,
-      location, starts_at, ends_at, max_participants, status, night_mode,
+      location, starts_at, ends_at, max_participants, status, closed_by_cap, night_mode,
       sport:sports(id, name),
       host:profiles!host_id(full_name, avatar_url, is_verified),
       activity_participants(user_id, status, checked_in_at)
@@ -188,3 +188,86 @@ export const acceptChallenge = (activityId, teamName) =>
 // Host only: reopen the challenge
 export const clearChallenge = (activityId) =>
   supabase.from('activities').update({ opponent_team: null, challenger_id: null }).eq('id', activityId)
+
+// ---------- Reliability (pro events) ----------
+// { [userId]: { joined, showed } } — only returns users the caller is allowed to see
+export async function fetchReliability(userIds) {
+  const ids = [...new Set(userIds.filter(Boolean))]
+  if (!ids.length) return {}
+  const { data, error } = await supabase.rpc('reliability_scores', { p_users: ids })
+  if (error) return {}
+  return Object.fromEntries((data || []).map((r) => [r.user_id, { joined: r.joined, showed: r.showed }]))
+}
+
+// ---------- Waitlist (casual) + join requests (pro) ----------
+const rpc = async (fn, args) => {
+  const { data, error } = await supabase.rpc(fn, args)
+  if (error) throw new Error(error.message)
+  return data
+}
+
+// Casual + full -> joins the waitlist. Pro -> sends a request to the host. Resolves to 'waitlist' | 'request'.
+export const requestJoin = (activityId) => rpc('request_join', { p_activity: activityId })
+export const cancelRequest = (activityId) => rpc('cancel_request', { p_activity: activityId })
+export const decideRequest = (activityId, userId, approve) =>
+  rpc('decide_request', { p_activity: activityId, p_user: userId, p_approve: approve })
+// Host only: pending requests with public stats
+export const fetchRequestList = (activityId) => rpc('request_list', { p_activity: activityId })
+// My place in line: { kind, status, position, waiting } or null
+export const fetchMyRequest = (activityId) => rpc('my_request', { p_activity: activityId })
+export const markRequestSeen = (activityId) => rpc('mark_request_seen', { p_activity: activityId })
+
+// Things that happened to my requests that I haven't seen yet (moved in, approved, declined)
+export async function fetchRequestUpdates(userId) {
+  const { data, error } = await supabase
+    .from('join_requests')
+    .select('activity_id, kind, status, decided_at')
+    .eq('user_id', userId)
+    .eq('seen', false)
+    .in('status', ['promoted', 'approved', 'denied'])
+  if (error) return []
+  return data || []
+}
+
+// Host: waiting requests / waitlist on my events -> { [activityId]: { request: n, waitlist: n } }
+export async function fetchWaitingCounts(activityIds) {
+  if (!activityIds.length) return {}
+  const { data, error } = await supabase
+    .from('join_requests')
+    .select('activity_id, kind')
+    .eq('status', 'waiting')
+    .in('activity_id', activityIds)
+  if (error) return {}
+  const out = {}
+  ;(data || []).forEach((r) => {
+    out[r.activity_id] ||= { request: 0, waitlist: 0 }
+    out[r.activity_id][r.kind] += 1
+  })
+  return out
+}
+
+// Host of a casual event: who's on the waitlist, in order
+export async function fetchWaitlist(activityId) {
+  const { data, error } = await supabase
+    .from('join_requests')
+    .select('user_id, created_at, profile:profiles(full_name, avatar_url, is_verified)')
+    .eq('activity_id', activityId)
+    .eq('kind', 'waitlist')
+    .eq('status', 'waiting')
+    .order('created_at')
+  if (error) return []
+  return data || []
+}
+
+// ---------- Follow ----------
+// People you've been at an event with: [{ user_id, full_name, avatar_url, is_verified, games, last_played, following }]
+export const fetchPlayedWith = () => rpc('played_with', {})
+export const followUser = (userId) => rpc('follow_user', { p_user: userId })
+export const unfollowUser = (userId) => rpc('unfollow_user', { p_user: userId })
+
+// Ids of everyone I follow (Set)
+export async function fetchFollowing(userId) {
+  const { data, error } = await supabase.from('follows').select('followee_id').eq('follower_id', userId)
+  if (error) return new Set()
+  return new Set((data || []).map((r) => r.followee_id))
+}

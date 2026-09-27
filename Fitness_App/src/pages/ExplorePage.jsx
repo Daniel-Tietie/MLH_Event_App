@@ -3,6 +3,7 @@ import Icon from '../components/Icon'
 import EventCard from '../components/EventCard'
 import SportTiles from '../components/SportTiles'
 import ForYou from '../components/ForYou'
+import FriendsGoing from '../components/FriendsGoing'
 import { isNotOver, spotsLeft } from '../utils/constants'
 import '../styles/explore.css'
 
@@ -66,6 +67,7 @@ export default function ExplorePage({ session, data, openEvent, navigate }) {
       </header>
 
       <ForYou session={session} activities={activities} openEvent={openEvent} navigate={navigate} />
+      <FriendsGoing session={session} activities={activities} openEvent={openEvent} />
 
       <section className="section">
         <div className="section-head">

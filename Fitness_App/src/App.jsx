@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSession } from './hooks/useSession'
 import { useActivities } from './hooks/useActivities'
-import { fetchCommentedIds, getMyQrToken, hostCheckIn, joinActivity, leaveActivity, setActivityStatus } from './services/activityService'
+import { fetchCommentedIds, fetchRequestUpdates, fetchWaitingCounts, getMyQrToken, hostCheckIn, joinActivity, leaveActivity, markRequestSeen, setActivityStatus } from './services/activityService'
 import Sidebar from './components/Sidebar'
 import Topbar from './components/Topbar'
 import Toast from './components/Toast'
@@ -17,6 +17,7 @@ import CreateEventPage from './pages/CreateEventPage'
 import ProfilePage from './pages/ProfilePage'
 import LiveSafetyPage from './pages/LiveSafetyPage'
 import { endEvent, extendEvent, fetchSafeCheckouts, recordSafety } from './services/safetyService'
+import { isNotOver } from './utils/constants'
 
 export default function App() {
   const { session, ready } = useSession()
@@ -188,6 +189,44 @@ function Main({ session }) {
     },
   }
 
+  // ---------- Waitlist + join requests ----------
+  // Player: "a spot opened, you're in" / "approved" / "declined". Host: "N requests waiting" on pro events.
+  const [reqUpdates, setReqUpdates] = useState([])
+  const [waitingCounts, setWaitingCounts] = useState({})
+  const [reqSnoozed, setReqSnoozed] = useState({})
+  const hostedProKey = data.activities
+    .filter((a) => a.host_id === session.user.id && a.category === 'professional' && isNotOver(a))
+    .map((a) => a.id).join(',')
+
+  useEffect(() => {
+    const load = () => {
+      fetchRequestUpdates(session.user.id).then(setReqUpdates)
+      if (hostedProKey) fetchWaitingCounts(hostedProKey.split(',')).then(setWaitingCounts)
+    }
+    load()
+    const t = setInterval(load, 10000)
+    return () => clearInterval(t)
+  }, [session.user.id, hostedProKey])
+
+  const byId = (id) => data.activities.find((a) => a.id === id)
+  const updates = reqUpdates
+    .map((u) => ({ ...u, activity: byId(u.activity_id) }))
+    .filter((u) => u.activity && ['promoted', 'approved', 'denied'].includes(u.status))
+  const hostRequests = Object.entries(waitingCounts)
+    .map(([id, c]) => ({ activity: byId(id), count: c.request }))
+    .filter((r) => r.activity && r.count > 0 && !(reqSnoozed[r.activity.id] > Date.now()) && !(view === 'event' && route.id === r.activity.id))
+  const updateActions = {
+    dismiss: (a) => {
+      setReqUpdates((cur) => cur.filter((u) => u.activity_id !== a.id))
+      markRequestSeen(a.id).catch(() => {})
+    },
+    open: (a) => { updateActions.dismiss(a); openEvent(a.id) },
+  }
+  const hostActions = {
+    review: (a) => { setReqSnoozed((s) => ({ ...s, [a.id]: Date.now() + 30 * 60e3 })); openEvent(a.id, 'requests') },
+    snooze: (a) => setReqSnoozed((s) => ({ ...s, [a.id]: Date.now() + 30 * 60e3 })),
+  }
+
   // ---------- Host "time's up" ----------
   // When an event reaches its end time, the host chooses: end it, or add 30 minutes.
   const [snoozed, setSnoozed] = useState({})
@@ -235,7 +274,7 @@ function Main({ session }) {
         </main>
       </div>
 
-      {view !== 'live' && <Notifications timeups={timeups} timeupActions={timeupActions} homeChecks={homeChecks} homeActions={homeActions} items={view === 'event' && route.focus === 'comments' ? prompts.filter((p) => p.id !== route.id) : prompts} onOpen={(id) => openEvent(id, 'comments')} onDismiss={dismissPrompt} />}
+      {view !== 'live' && <Notifications timeups={timeups} timeupActions={timeupActions} homeChecks={homeChecks} homeActions={homeActions} items={view === 'event' && route.focus === 'comments' ? prompts.filter((p) => p.id !== route.id) : prompts} onOpen={(id) => openEvent(id, 'comments')} onDismiss={dismissPrompt} updates={updates} updateActions={updateActions} hostRequests={hostRequests} hostActions={hostActions} />}
       <QrModal qr={qr} onClose={() => { setQr(null); data.reload() }} />
       <Toast toast={toast} onClose={clearToast} />
     </div>

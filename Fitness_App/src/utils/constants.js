@@ -86,3 +86,19 @@ export const isNotOver = (a) => {
   const phase = eventPhase(a)
   return phase === 'upcoming' || phase === 'live'
 }
+
+// ---------- Joining ----------
+// Casual waitlist stops moving people in this close to the start (not enough time to get there)
+export const WAITLIST_CUTOFF_MIN = 30
+
+// How a non-member can get into this event:
+// 'join' | 'waitlist' | 'request' | 'full' (too late for waitlist) | 'closed' (host closed) | 'started'
+export function joinMode(a) {
+  if (!a || a.status === 'cancelled' || a.status === 'completed' || Date.now() >= new Date(a.starts_at).getTime()) return 'started'
+  const hostClosed = a.status === 'closed' && !a.closed_by_cap
+  if (hostClosed) return 'closed'
+  if (a.category === 'professional') return 'request'
+  if (a.status === 'open' && spotsLeft(a) > 0) return 'join'
+  const cutoff = new Date(a.starts_at).getTime() - WAITLIST_CUTOFF_MIN * 60e3
+  return Date.now() < cutoff ? 'waitlist' : 'full'
+}

@@ -5,6 +5,8 @@ import { getProfile, setUserSports, updateProfile, verifyIdentityMock } from '..
 import { fetchActivityHistory } from '../services/activityService'
 import { formatDate, sportColors, sportIcon } from '../utils/constants'
 import EmergencyContacts from '../components/EmergencyContacts'
+import PlayedWith from '../components/PlayedWith'
+import { reliabilityLevel, useReliability } from '../components/Reliability'
 import '../styles/social.css'
 import '../styles/features.css'
 import '../styles/safety.css'
@@ -40,6 +42,8 @@ export default function ProfilePage({ session, data, notify, openEvent }) {
       .then(setHistory)
       .catch(() => setHistory([]))
   }, [session.user.id])
+
+  const myScore = useReliability([session.user.id])[session.user.id]
 
   const set = (key) => (e) => setForm({ ...form, [key]: e.target.value })
 
@@ -118,6 +122,8 @@ export default function ProfilePage({ session, data, notify, openEvent }) {
         </div>
       )}
 
+      <ReliabilityCard stat={myScore} />
+
       <form className="card form" onSubmit={save}>
         <h3 className="form-section">About you</h3>
         <div className="row">
@@ -167,6 +173,8 @@ export default function ProfilePage({ session, data, notify, openEvent }) {
 
       <EmergencyContacts userId={session.user.id} notify={notify} />
 
+      <PlayedWith userId={session.user.id} notify={notify} />
+
       <section className="section">
         <div className="section-head">
           <h2>Activity history <span className="count">{history?.length ?? 0}</span></h2>
@@ -203,6 +211,27 @@ export default function ProfilePage({ session, data, notify, openEvent }) {
           </div>
         )}
       </section>
+    </div>
+  )
+}
+
+// Your own show-up record at pro events (hosts of pro events you join see the same number)
+function ReliabilityCard({ stat }) {
+  const { tone, pct } = reliabilityLevel(stat)
+  const ring = { good: 'var(--green)', ok: '#e0a800', bad: 'var(--danger)', new: 'var(--border)' }[tone]
+  return (
+    <div className="card rel-card">
+      <div className={`rel-ring ${pct == null ? 'is-new' : ''}`} style={{ '--p': pct ?? 0, '--ring': ring }}>
+        <span>{pct == null ? '🎯' : `${pct}%`}</span>
+      </div>
+      <div>
+        <h3>Pro show-up score</h3>
+        <p className="muted small">
+          {pct == null
+            ? 'Join a pro event and check in with your QR code to build your score. Hosts of pro events use it to approve players.'
+            : `You checked in to ${stat.showed} of ${stat.joined} pro events you signed up for. Hosts of pro events can see this.`}
+        </p>
+      </div>
     </div>
   )
 }

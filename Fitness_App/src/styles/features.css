@@ -111,3 +111,80 @@
   border-radius: 14px; background: var(--surface-2); color: var(--muted);
 }
 .private-note p { margin: 0; }
+
+/* ---------- Reliability score ---------- */
+.rel-badge {
+  display: inline-flex; align-items: center; gap: 4px; margin-top: 3px;
+  font-size: 0.72rem; font-weight: 800; padding: 3px 9px; border-radius: 999px; white-space: nowrap;
+}
+.rel-good { background: var(--green-soft); color: var(--green); }
+.rel-ok { background: var(--yellow-soft); color: #9a7400; }
+.rel-bad { background: #fdecec; color: var(--danger); }
+.rel-new { background: var(--surface-2); color: var(--muted); }
+.people li > div { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
+.people li > div > strong { display: flex; align-items: center; flex-wrap: wrap; }
+.rel-hint { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+
+.card.rel-card { display: flex; align-items: center; gap: 18px; padding: 18px 22px; }
+.rel-card > div:last-child { flex: 1; min-width: 0; }
+.rel-ring {
+  --p: 0; flex: none; width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center;
+  background: conic-gradient(var(--ring, var(--green)) calc(var(--p) * 1%), var(--surface-2) 0);
+}
+.rel-ring span { width: 50px; height: 50px; border-radius: 50%; background: var(--surface); display: grid; place-items: center; font-weight: 800; font-size: 0.95rem; }
+/* No pro history yet: dashed ring with an icon instead of an empty gauge */
+.rel-ring.is-new { background: none; border: 2px dashed var(--border); }
+.rel-ring.is-new span { background: var(--surface-2); font-size: 1.4rem; }
+.rel-card h3 { margin: 0 0 4px; font-size: 1rem; }
+.rel-card p { margin: 0; line-height: 1.45; }
+@media (max-width: 520px) { .card.rel-card { padding: 16px; gap: 14px; } }
+
+/* ---------- Waitlist + requests ---------- */
+.pill.pill-wait { background: var(--primary-soft); color: var(--primary); }
+.join-hint { text-align: center; margin: -6px 0 0; }
+.list-sub { margin: 18px 0 8px; display: flex; align-items: center; gap: 6px; }
+.queue-no {
+  flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--surface-2); font-size: 0.75rem; font-weight: 800; color: var(--muted);
+}
+.request-row { align-items: flex-start; }
+.request-info { flex: 1; gap: 2px; }
+.request-stats { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; font-size: 0.75rem; color: var(--muted); }
+.request-stats > span:first-child { font-weight: 700; }
+.sport-chip { padding: 2px 8px; border-radius: 999px; background: var(--surface-2); font-weight: 700; }
+.people li > .request-actions { display: flex; flex-direction: row; align-items: center; gap: 6px; flex: none; align-self: center; }
+@media (max-width: 520px) {
+  .request-row { flex-wrap: wrap; }
+  .request-actions { width: 100%; justify-content: flex-end; }
+}
+/* More tabs (Requests) -> scroll sideways on small screens */
+.tabs { overflow-x: auto; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+
+/* ---------- Weather chip (on the event hero) ---------- */
+.wx { position: absolute; left: 18px; bottom: 18px; z-index: 2; }
+.wx-chip {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px;
+  border: 0; cursor: pointer; font: inherit; font-size: 0.82rem; font-weight: 800; color: var(--ink);
+  background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(6px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.wx-chip span { font-size: 1rem; line-height: 1; }
+.wx-chip.wx-bad { background: #ffe8c7; color: #8a4b00; }
+.wx-pop {
+  position: absolute; left: 0; top: calc(100% + 8px); z-index: 5; width: max-content; max-width: min(280px, 76vw);
+  display: flex; flex-direction: column; gap: 3px; padding: 10px 12px; border-radius: 14px;
+  background: var(--surface); box-shadow: var(--shadow-lg); font-size: 0.8rem; color: var(--muted);
+}
+.wx-pop strong { color: var(--ink); font-size: 0.9rem; }
+.wx-pop p { margin: 4px 0 0; color: #8a4b00; font-weight: 600; }
+
+/* ---------- Follow ---------- */
+.played-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
+.played-list li.card { display: flex; align-items: center; gap: 12px; padding: 12px 14px; }
+.played-info { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.played-info strong { display: flex; align-items: center; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.friends-tag {
+  align-self: flex-start; font-size: 0.74rem; font-weight: 800; padding: 3px 9px; border-radius: 999px;
+  background: var(--green-soft); color: var(--green);
+}
+.following-tag { margin-left: 6px; font-size: 0.68rem; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: var(--green-soft); color: var(--green); }
