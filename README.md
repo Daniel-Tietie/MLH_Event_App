@@ -6,7 +6,7 @@ Rally is a web app that helps people meet through sport. Hosts post casual or co
 
 Built in about 18 hours by a team of two at an MLH hackathon.
 
-![Rally system design](./src/assets/architecture.png)
+![Rally system design](./Fitness_App/src/assets/architecture.png)
 
 ---
 
