@@ -6,8 +6,6 @@ Rally is a web app that helps people meet through sport. Hosts post casual or co
 
 Built in about 18 hours by a team of two at an MLH hackathon.
 
-![Rally system design](./Fitness_App/src/assets/architecture.png)
-
 ---
 
 ## The problem
@@ -80,18 +78,7 @@ Rally covers the whole journey:
 
 ## How it works
 
-```
-Browser (React + Vite)
-   │
-   ├── Supabase Auth ........ sign-up / login, sessions
-   ├── Supabase Postgres .... all data + the rules (row-level security + database functions)
-   ├── Supabase Storage ..... profile pictures (public), event photos (private, signed links)
-   ├── Supabase Realtime .... group chat, direct messages, live safety updates
-   │
-   ├── Leaflet + CARTO / OpenStreetMap tiles ... maps
-   ├── Nominatim ............ place search for the meeting pin
-   └── Open-Meteo ........... weather forecast (no key needed)
-```
+![Rally system design](./Fitness_App/src/assets/architecture.png)
 
 **Every rule lives in the database, not just the app.** Joining, the cap, waitlist promotion, pro approvals, eligibility, who can see photos and messages, and who can message whom are all enforced by Postgres functions and row-level security. They hold even if someone bypasses the front end with the public API key.
 
@@ -117,7 +104,7 @@ Browser (React + Vite)
    npm install
    ```
 2. **Environment:** copy `.env.example` to `.env` and fill it in:
-   ```
+   ```text
    VITE_SUPABASE_URL=         # Supabase -> Project Settings -> API
    VITE_SUPABASE_ANON_KEY=    # Supabase -> Project Settings -> API
    VITE_CARTO_KEY=            # optional, free at carto.com (falls back to OpenStreetMap)
@@ -133,7 +120,7 @@ Browser (React + Vite)
 
 ## Project structure
 
-```
+```text
 src/
   pages/        Explore, Nearby, Calendar, My events, Friends, Host, Profile, Event detail, Live safety, Auth
   components/   Event cards, chat, messages, comments/photos, radar, requests/waitlist, weather, notifications...
