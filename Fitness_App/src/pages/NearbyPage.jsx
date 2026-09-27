@@ -77,7 +77,7 @@ export default function NearbyPage({ data, openEvent, notify }) {
           </h2>
           {nearby.length === 0 && (
             <div className="empty small">
-              <div className="empty-icon">📍</div>
+              <div className="empty-icon"><Icon name="pin" size={26} /></div>
               <p className="muted">Nothing nearby yet. Try a bigger radius.</p>
             </div>
           )}

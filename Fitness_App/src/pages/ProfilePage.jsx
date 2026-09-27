@@ -5,7 +5,6 @@ import { getProfile, setUserSports, updateProfile, verifyIdentityMock } from '..
 import { fetchActivityHistory } from '../services/activityService'
 import { formatDate, sportColors, sportIcon } from '../utils/constants'
 import EmergencyContacts from '../components/EmergencyContacts'
-import PlayedWith from '../components/PlayedWith'
 import { reliabilityLevel, useReliability } from '../components/Reliability'
 import '../styles/social.css'
 import '../styles/features.css'
@@ -173,8 +172,6 @@ export default function ProfilePage({ session, data, notify, openEvent }) {
 
       <EmergencyContacts userId={session.user.id} notify={notify} />
 
-      <PlayedWith userId={session.user.id} notify={notify} />
-
       <section className="section">
         <div className="section-head">
           <h2>Activity history <span className="count">{history?.length ?? 0}</span></h2>
@@ -183,7 +180,7 @@ export default function ProfilePage({ session, data, notify, openEvent }) {
           <p className="muted">Loading...</p>
         ) : history.length === 0 ? (
           <div className="empty small">
-            <div className="empty-icon">🏅</div>
+            <div className="empty-icon"><Icon name="award" size={26} /></div>
             <p className="muted">Events you check in to (or host) show up here, with your comments.</p>
           </div>
         ) : (

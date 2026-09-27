@@ -46,7 +46,7 @@ export default function CalendarPage({ data, openEvent, navigate }) {
           <h2 className="list-title">{label}</h2>
           {dayEvents.length === 0 ? (
             <div className="empty small">
-              <div className="empty-icon">📅</div>
+              <div className="empty-icon"><Icon name="calendar" size={26} /></div>
               <p className="muted">Nothing planned for this day.</p>
               <button className="btn btn-primary" onClick={() => navigate('create', { date: selected })}>
                 Host something

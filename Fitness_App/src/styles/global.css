@@ -211,7 +211,11 @@ textarea { resize: vertical; }
   display: flex; flex-direction: column; align-items: center; gap: 10px;
 }
 .empty.small { padding: 28px 16px; }
-.empty-icon { font-size: 2.4rem; }
+.empty-icon {
+  width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; flex: none;
+  background: var(--primary-soft); color: var(--primary);
+}
+.empty.small .empty-icon { width: 48px; height: 48px; }
 .empty .btn { margin-top: 6px; }
 
 .splash { min-height: 100vh; display: grid; place-items: center; }

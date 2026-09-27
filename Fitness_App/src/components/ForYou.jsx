@@ -26,7 +26,7 @@ export default function ForYou({ session, activities, openEvent, navigate }) {
     return (
       <section className="section">
         <div className="foryou-empty">
-          <span className="foryou-empty-icon">✨</span>
+          <span className="foryou-empty-icon"><Icon name="sparkles" size={24} /></span>
           <div>
             <strong>Get events picked for you</strong>
             <p>Add the sports you play and your level, and we'll match you with the right games.</p>

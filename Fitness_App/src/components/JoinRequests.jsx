@@ -134,7 +134,7 @@ export function RequestsPanel({ activity: a, notify, onChange, onCount }) {
   if (!list.length) {
     return (
       <div className="empty small">
-        <div className="empty-icon">📨</div>
+        <div className="empty-icon"><Icon name="inbox" size={26} /></div>
         <p className="muted">No pending requests. Players who ask to join will show up here.</p>
       </div>
     )

@@ -1,3 +1,4 @@
+import Icon from '../components/Icon'
 import { useMemo, useState } from 'react'
 import EventCard from '../components/EventCard'
 import { isNotOver } from '../utils/constants'
@@ -54,7 +55,7 @@ export default function MyEventsPage({ session, data, openEvent, navigate }) {
         <div className="card-grid">{[1, 2].map((i) => <div key={i} className="ecard skeleton" />)}</div>
       ) : list.length === 0 ? (
         <div className="empty">
-          <div className="empty-icon">🎟️</div>
+          <div className="empty-icon"><Icon name="ticket" size={26} /></div>
           <h3>Nothing here yet</h3>
           <p className="muted">Events you host or join will show up here.</p>
           <div style={{ display: 'flex', gap: 8 }}>

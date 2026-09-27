@@ -49,7 +49,7 @@ export default function LiveSafetyPage(props) {
       <div className="page">
         <button className="icon-btn icon-btn-pink" onClick={goBack} aria-label="Back"><Icon name="back" /></button>
         <div className="empty" style={{ marginTop: 20 }}>
-          <div className="empty-icon">🛡️</div>
+          <div className="empty-icon"><Icon name="shield" size={26} /></div>
           <h3>{phase === 'cancelled' ? 'This event was cancelled' : 'Safety opens closer to the event'}</h3>
           {phase === 'upcoming' && (
             <p className="muted">Check-ins, the group radar and SOS open at {formatTime(opens)}, 30 minutes before the start.</p>
@@ -322,7 +322,7 @@ function LiveSession({ session, a, phase, notify, goBack, data }) {
       <div className="page">
         <button className="icon-btn icon-btn-pink" onClick={goBack}><Icon name="back" /></button>
         <div className="empty" style={{ marginTop: 20 }}>
-          <div className="empty-icon">🛡️</div>
+          <div className="empty-icon"><Icon name="shield" size={26} /></div>
           <h3>Safety is for the group</h3>
           <p className="muted">Join this event to see check-ins and the SOS screen.</p>
         </div>

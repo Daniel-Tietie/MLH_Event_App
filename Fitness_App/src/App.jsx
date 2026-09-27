@@ -15,6 +15,7 @@ import MyEventsPage from './pages/MyEventsPage'
 import EventDetailPage from './pages/EventDetailPage'
 import CreateEventPage from './pages/CreateEventPage'
 import ProfilePage from './pages/ProfilePage'
+import FriendsPage from './pages/FriendsPage'
 import LiveSafetyPage from './pages/LiveSafetyPage'
 import { endEvent, extendEvent, fetchSafeCheckouts, recordSafety } from './services/safetyService'
 import { isNotOver } from './utils/constants'
@@ -30,7 +31,7 @@ export default function App() {
 // ---------- URL routing ----------
 // Every page has its own URL, e.g. #/calendar or #/event/<id>,
 // so the browser back button, refresh, and shared links all work.
-const VIEWS = ['explore', 'nearby', 'calendar', 'mine', 'create', 'profile', 'event', 'live']
+const VIEWS = ['explore', 'nearby', 'calendar', 'mine', 'friends', 'create', 'profile', 'event', 'live']
 
 function readRoute() {
   const [path, query = ''] = window.location.hash.replace(/^#\/?/, '').split('?')
@@ -264,6 +265,7 @@ function Main({ session }) {
           {view === 'calendar' && <CalendarPage {...shared} />}
           {view === 'mine' && <MyEventsPage {...shared} />}
           {view === 'profile' && <ProfilePage {...shared} />}
+          {view === 'friends' && <FriendsPage {...shared} />}
           {view === 'create' && <CreateEventPage key={route.date || 'new'} {...shared} preset={{ date: route.date }} onCreated={() => { data.reload(); navigate('mine') }} />}
           {view === 'live' && (
             <LiveSafetyPage {...shared} event={data.activities.find((a) => a.id === route.id)} />

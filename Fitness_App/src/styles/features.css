@@ -27,7 +27,10 @@
 }
 .foryou-empty > div { flex: 1; min-width: 220px; }
 .foryou-empty p { color: #5a5f70; font-size: 0.88rem; }
-.foryou-empty-icon { font-size: 1.8rem; }
+.foryou-empty-icon {
+  width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; flex: none;
+  background: var(--primary-soft); color: var(--primary);
+}
 
 /* ---------- Photos ---------- */
 .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
@@ -179,12 +182,32 @@
 .wx-pop p { margin: 4px 0 0; color: #8a4b00; font-weight: 600; }
 
 /* ---------- Follow ---------- */
-.played-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
-.played-list li.card { display: flex; align-items: center; gap: 12px; padding: 12px 14px; }
-.played-info { display: flex; flex-direction: column; flex: 1; min-width: 0; }
-.played-info strong { display: flex; align-items: center; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.played-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 10px; }
+.played-list li.card { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; padding: 12px 14px; }
+.played-info { display: flex; flex-direction: column; flex: 1 1 150px; min-width: 0; }
+.played-info strong { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
 .friends-tag {
   align-self: flex-start; font-size: 0.74rem; font-weight: 800; padding: 3px 9px; border-radius: 999px;
   background: var(--green-soft); color: var(--green);
 }
 .following-tag { margin-left: 6px; font-size: 0.68rem; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: var(--green-soft); color: var(--green); }
+.next-event {
+  align-self: flex-start; max-width: 100%; margin-top: 2px; padding: 0; border: 0; background: none; cursor: pointer;
+  font: inherit; font-size: 0.8rem; font-weight: 700; color: var(--primary); text-align: left;
+  line-height: 1.35; overflow-wrap: anywhere;
+}
+.next-event:hover { text-decoration: underline; }
+/* "Following" turns into a red "Unfollow" on hover */
+.btn-following .when-hover { display: none; }
+.btn-following:hover:not(:disabled) { color: var(--danger); border-color: #f5c2c3; background: #fdecec; }
+.btn-following:hover:not(:disabled) .when-idle { display: none; }
+.btn-following:hover:not(:disabled) .when-hover { display: inline; }
+.section-head .segmented button { white-space: nowrap; }
+@media (max-width: 520px) { .section-head:has(.segmented) { flex-wrap: wrap; gap: 8px; } }
+.friend-actions { display: flex; gap: 6px; flex: none; margin-left: auto; }
+/* Tabs in the page header scroll sideways on small screens */
+.page-head .segmented { max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+.page-head .segmented::-webkit-scrollbar { display: none; }
+.page-head .segmented button { flex: none; white-space: nowrap; }
+.btn-remove:hover:not(:disabled) { color: var(--danger); background: #fdecec; border-color: #f5c2c3; }
+.played-list + .section { margin-top: 28px; }

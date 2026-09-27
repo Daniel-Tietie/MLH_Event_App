@@ -53,7 +53,7 @@ export default function ChatPanel({ activityId, userId, canChat }) {
   if (!canChat) {
     return (
       <div className="empty small">
-        <div className="empty-icon">💬</div>
+        <div className="empty-icon"><Icon name="chat" size={26} /></div>
         <p className="muted">Join this event to chat with the group.</p>
       </div>
     )

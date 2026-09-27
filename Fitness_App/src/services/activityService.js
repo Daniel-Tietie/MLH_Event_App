@@ -271,3 +271,6 @@ export async function fetchFollowing(userId) {
   if (error) return new Set()
   return new Set((data || []).map((r) => r.followee_id))
 }
+// People who follow me: [{ user_id, full_name, avatar_url, is_verified, since, following_back }]
+export const fetchMyFollowers = () => rpc('my_followers', {})
+export const removeFollower = (userId) => rpc('remove_follower', { p_user: userId })

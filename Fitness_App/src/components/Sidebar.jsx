@@ -9,6 +9,7 @@ const NAV = [
   { id: 'nearby', label: 'Nearby me', icon: 'pin' },
   { id: 'calendar', label: 'Calendar', icon: 'calendar' },
   { id: 'mine', label: 'My events', icon: 'ticket' },
+  { id: 'friends', label: 'Friends', icon: 'users' },
   { id: 'create', label: 'Host an event', icon: 'plusSquare' },
   { id: 'profile', label: 'My profile', icon: 'user' },
 ]

@@ -96,7 +96,7 @@ export default function ExplorePage({ session, data, openEvent, navigate }) {
           <div className="card-grid">{[1, 2, 3, 4].map((i) => <div key={i} className="ecard skeleton" />)}</div>
         ) : visible.length === 0 ? (
           <div className="empty">
-            <div className="empty-icon">🏟️</div>
+            <div className="empty-icon"><Icon name="search" size={26} /></div>
             <h3>No events match</h3>
             <p className="muted">Be the first. Host one and people nearby will see it.</p>
             <button className="btn btn-primary" onClick={() => navigate('create')}>
