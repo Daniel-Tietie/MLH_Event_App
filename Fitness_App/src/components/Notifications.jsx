@@ -1,5 +1,5 @@
 import Icon from './Icon'
-import { formatTime, sportColors, sportIcon } from '../utils/constants'
+import { formatTime, sportColors, sportIcon, eventIcon } from '../utils/constants'
 
 /**
  * Top-right notifications:
@@ -90,7 +90,7 @@ export default function Notifications({
       {commentItems.slice(0, 2).map((a) => (
         <div key={a.id} className="notif">
           <span className="notif-icon" style={{ background: sportColors(a.sport?.name)[0] }}>
-            {sportIcon(a.sport?.name)}
+            {eventIcon(a)}
           </span>
           <div className="notif-body">
             <strong>How was {a.title}?</strong>

@@ -3,9 +3,9 @@ import Icon from './Icon'
 import { Avatar } from './Avatar'
 import { ReliabilityBadge } from './Reliability'
 import {
-  cancelRequest, decideRequest, fetchMyRequest, fetchRequestList, fetchWaitlist, requestJoin,
+  cancelRequest, decideRequest, fetchMyEligibility, fetchMyRequest, fetchRequestList, fetchWaitlist, requestJoin,
 } from '../services/activityService'
-import { joinMode, spotsLeft, WAITLIST_CUTOFF_MIN } from '../utils/constants'
+import { eligibilityTags, isRestricted, joinMode, spotsLeft, WAITLIST_CUTOFF_MIN } from '../utils/constants'
 
 const LEVEL_LABEL = { casual: 'Casual', competitive: 'Competitive', d2: 'D2', d1: 'D1', professional: 'Pro', ex_player: 'Ex-player', retired: 'Retired' }
 const ordinal = (n) => {
@@ -27,8 +27,15 @@ function usePoll(load, deps, ms = 10000) {
  * Casual: Join -> (full) Join waitlist -> (30 min before) Full
  * Pro:    Request to join -> Waiting for host -> Approved (becomes a member) / Declined
  */
-export function JoinButton({ activity: a, onJoin, notify, onChange }) {
+export function JoinButton({ activity: a, onJoin, notify, onChange, onFixProfile }) {
   const [mine, setMine] = useState(undefined) // undefined = loading, null = no request
+  // Age-group / women's / men's events: can I join? (null = yes, otherwise the reason)
+  const [notEligible, setNotEligible] = useState(null)
+  const restricted = isRestricted(a)
+  useEffect(() => {
+    if (!restricted) return setNotEligible(null)
+    fetchMyEligibility(a.id).then(setNotEligible).catch(() => setNotEligible(null))
+  }, [a.id, restricted, a.gender_rule, a.age_min, a.age_max])
   const [busy, setBusy] = useState(false)
   const mode = joinMode(a)
 
@@ -73,6 +80,15 @@ export function JoinButton({ activity: a, onJoin, notify, onChange }) {
     return <button className="btn btn-wide" disabled>Request declined</button>
   }
 
+  if (notEligible && (mode === 'join' || mode === 'waitlist' || mode === 'request')) {
+    const fixable = /profile/i.test(notEligible)
+    return fixable ? (
+      <button className="btn btn-dark btn-wide" onClick={onFixProfile} title={notEligible}>Add details to join</button>
+    ) : (
+      <span className="pill pill-lg pill-inelig" title={notEligible}><Icon name="shield" size={15} /> {notEligible}</span>
+    )
+  }
+
   switch (mode) {
     case 'join':
       return <button className="btn btn-yellow btn-wide" onClick={() => onJoin(a.id)}>Join event</button>
@@ -100,6 +116,9 @@ export function JoinButton({ activity: a, onJoin, notify, onChange }) {
 // Line under the button explaining what happens next
 export function JoinHint({ activity: a }) {
   const mode = joinMode(a)
+  if (isRestricted(a) && mode !== 'started') {
+    return <p className="muted small join-hint">{eligibilityTags(a).join(' · ')} event. Your age and gender stay private; Rally only checks you fit.</p>
+  }
   if (mode === 'request') return <p className="muted small join-hint">Pro event: the host reviews every request and picks the roster.</p>
   if (mode === 'waitlist') return <p className="muted small join-hint">It's full. If someone leaves more than {WAITLIST_CUTOFF_MIN} min before the start, the next person on the waitlist is moved in automatically.</p>
   return null

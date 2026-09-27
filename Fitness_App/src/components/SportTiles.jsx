@@ -2,7 +2,13 @@ import { sportColors, sportIcon } from '../utils/constants'
 
 // "All Category" grid with pastel blobs behind each sport icon
 export default function SportTiles({ sports, counts, total, selected, onSelect }) {
-  const tiles = [{ id: '', name: 'All sports', count: total }, ...sports.map((s) => ({ ...s, count: counts[s.id] || 0 }))]
+  // Only sports that have upcoming events (plus the one selected), busiest first, so a long
+  // sports list doesn't bury the page
+  const withEvents = sports
+    .map((s) => ({ ...s, count: counts[s.id] || 0 }))
+    .filter((s) => s.count > 0 || String(s.id) === String(selected))
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
+  const tiles = [{ id: '', name: 'All sports', count: total }, ...withEvents]
 
   return (
     <div className="tiles">

@@ -5,7 +5,7 @@ import FriendsGoing from '../components/FriendsGoing'
 import Messages from '../components/Messages'
 import { fetchMyFollowers, fetchPlayedWith, followUser, removeFollower, unfollowUser } from '../services/activityService'
 import { refreshFollowing } from '../hooks/useFollowing'
-import { activePeople, formatDate, formatTime, isNotOver, sportIcon } from '../utils/constants'
+import { activePeople, formatDate, formatTime, isNotOver, sportIcon, eventIcon } from '../utils/constants'
 import '../styles/features.css'
 import '../styles/explore.css'
 
@@ -154,7 +154,7 @@ export default function FriendsPage({ session, data, notify, openEvent, focus, d
                   {tab === 'followers' && !mutual && <span className="muted small">Follows you · since {formatDate(p.since)}</span>}
                   {(tab === 'following' || mutual) && (next ? (
                     <button className="next-event" onClick={() => openEvent(next.id)}>
-                      {sportIcon(next.sport?.name)} Next: {next.title}<br />
+                      {eventIcon(next)} Next: {next.title}<br />
                       <span className="muted">{formatDate(next.starts_at)} · {formatTime(next.starts_at)}</span>
                     </button>
                   ) : <span className="muted small">No upcoming events</span>)}

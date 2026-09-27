@@ -53,7 +53,9 @@ export default function CalendarPage({ data, openEvent, navigate }) {
               </button>
             </div>
           ) : (
-            dayEvents.map((a) => <EventCard key={a.id} activity={a} onOpen={openEvent} />)
+            <div className="day-scroll">
+              {dayEvents.map((a) => <EventCard key={a.id} activity={a} onOpen={openEvent} />)}
+            </div>
           )}
         </div>
       </div>

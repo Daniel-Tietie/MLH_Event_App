@@ -1,5 +1,5 @@
 import { AvatarStack } from './Avatar'
-import { activePeople, eventPhase, formatDate, formatTime, sportColors, sportIcon, spotsLeft } from '../utils/constants'
+import { activePeople, eventPhase, formatDate, formatTime, sportColors, sportIcon, spotsLeft, eligibilityTags, eventIcon } from '../utils/constants'
 
 // Compact event row (like the calendar list items in the reference design)
 export default function EventCard({ activity: a, onOpen, distance, role }) {
@@ -12,7 +12,7 @@ export default function EventCard({ activity: a, onOpen, distance, role }) {
   return (
     <article className="ecard" onClick={() => onOpen?.(a.id)} role="button" tabIndex={0}
       onKeyDown={(e) => e.key === 'Enter' && onOpen?.(a.id)}>
-      <div className="ecard-icon" style={{ background: bg }}>{sportIcon(sport)}</div>
+      <div className="ecard-icon" style={{ background: bg }}>{eventIcon(a)}</div>
 
       <div className="ecard-body">
         <div className="ecard-head">
@@ -33,6 +33,7 @@ export default function EventCard({ activity: a, onOpen, distance, role }) {
           {isPro && <span className="tag tag-pro">PRO</span>}
           {a.type === 'team' && <span className="tag tag-team">Team vs Team</span>}
           {a.night_mode && <span className="tag tag-night">🌙 Night</span>}
+          {eligibilityTags(a).map((t) => <span key={t} className="tag tag-elig">{t}</span>)}
           {eventPhase(a) === 'live' && new Date(a.starts_at) <= new Date() && <span className="tag tag-live">● Live now</span>}
         </div>
 

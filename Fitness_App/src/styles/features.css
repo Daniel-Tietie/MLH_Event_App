@@ -289,3 +289,25 @@
 }
 .spinner { width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.4); border-top-color: #fff; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+.avatar-menu button:disabled { cursor: default; color: var(--muted); }
+.avatar-menu button:disabled:hover { background: none; }
+.avatar-menu-current { margin-left: auto; display: inline-flex; align-items: center; gap: 3px; font-size: 0.72rem; font-weight: 800; color: var(--green); }
+
+/* ---------- Eligibility (age group / gender events) ---------- */
+.tag.tag-elig { background: #e6f4ff; color: #0b5cad; }
+.private-card .form-section { display: flex; align-items: center; gap: 8px; }
+.private-nudge { margin: 0; padding: 8px 12px; border-radius: 10px; background: var(--yellow-soft); color: #7a5b00; font-weight: 600; }
+.auth-private { margin: -4px 0 0; }
+.pill.pill-inelig { background: #e6f4ff; color: #0b5cad; font-weight: 800; }
+
+/* ---------- Masked private info (DOB, contact numbers) ---------- */
+.private-view { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 4px 0 0; }
+.private-view > div { padding: 10px 12px; border-radius: 12px; background: var(--surface-2); }
+.private-view dt { font-size: 0.78rem; font-weight: 600; color: var(--muted); }
+.private-view dd { margin: 2px 0 0; display: flex; align-items: center; gap: 10px; font-weight: 700; }
+.masked { letter-spacing: 0.12em; }
+.reveal-btn { font-size: 0.78rem; font-weight: 700; }
+.contact-phone { display: inline-flex; align-items: center; gap: 10px; }
+.private-form { display: flex; flex-direction: column; gap: 12px; }
+.private-actions { display: flex; justify-content: flex-end; gap: 8px; }
+@media (max-width: 520px) { .private-view { grid-template-columns: 1fr; } }

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSession } from './hooks/useSession'
 import { useActivities } from './hooks/useActivities'
-import { fetchCommentedIds, fetchRequestUpdates, fetchUnreadDmCount, subscribeDms, fetchWaitingCounts, getMyQrToken, hostCheckIn, joinActivity, leaveActivity, markRequestSeen, setActivityStatus } from './services/activityService'
+import { fetchCommentedIds, fetchMyDetails, setMyDetails, fetchRequestUpdates, fetchUnreadDmCount, subscribeDms, fetchWaitingCounts, getMyQrToken, hostCheckIn, joinActivity, leaveActivity, markRequestSeen, setActivityStatus } from './services/activityService'
 import Sidebar from './components/Sidebar'
 import Topbar from './components/Topbar'
 import Toast from './components/Toast'
@@ -227,6 +227,15 @@ function Main({ session }) {
     review: (a) => { setReqSnoozed((s) => ({ ...s, [a.id]: Date.now() + 30 * 60e3 })); openEvent(a.id, 'requests') },
     snooze: (a) => setReqSnoozed((s) => ({ ...s, [a.id]: Date.now() + 30 * 60e3 })),
   }
+
+  // ---------- First sign-in after sign-up: move DOB / gender from sign-up into private details ----------
+  useEffect(() => {
+    const meta = session.user.user_metadata || {}
+    if (!meta.birth_date && !meta.gender) return
+    fetchMyDetails(session.user.id).then((d) => {
+      if (!d?.birth_date && !d?.gender) setMyDetails(meta.birth_date, meta.gender).catch(() => {})
+    })
+  }, [session.user.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ---------- Direct messages: unread count for the sidebar ----------
   const [dmUnread, setDmUnread] = useState(0)

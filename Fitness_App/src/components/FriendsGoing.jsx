@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import Icon from './Icon'
 import { AvatarStack } from './Avatar'
 import { useFollowing } from '../hooks/useFollowing'
-import { activePeople, formatDate, formatTime, isNotOver, sportColors, sportIcon, spotsLeft } from '../utils/constants'
+import { activePeople, formatDate, formatTime, isNotOver, sportColors, sportIcon, spotsLeft, eventIcon } from '../utils/constants'
 
 // Explore: upcoming events that people you follow are hosting or have joined
 export default function FriendsGoing({ session, activities, openEvent }) {
@@ -47,7 +47,7 @@ export default function FriendsGoing({ session, activities, openEvent }) {
             <article key={a.id} className="foryou-card" onClick={() => openEvent(a.id)} role="button" tabIndex={0}
               onKeyDown={(e) => e.key === 'Enter' && openEvent(a.id)}>
               <div className="foryou-top" style={{ background: `linear-gradient(135deg, ${c1}, ${c2})` }}>
-                <span className="foryou-emoji">{sportIcon(a.sport?.name)}</span>
+                <span className="foryou-emoji">{eventIcon(a)}</span>
                 {a.category === 'professional' && <span className="tag tag-pro">PRO</span>}
               </div>
               <div className="foryou-body">

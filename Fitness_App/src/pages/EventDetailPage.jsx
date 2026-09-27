@@ -11,11 +11,11 @@ import { fetchWaitingCounts } from '../services/activityService'
 import WeatherChip from '../components/WeatherChip'
 import { useFollowing } from '../hooks/useFollowing'
 import '../styles/features.css'
-import { activePeople, eventEnd, eventPhase, formatLong, formatTime, isTracked, SAFETY_OPENS_MIN, sportColors, sportIcon, spotsLeft } from '../utils/constants'
+import { activePeople, eventEnd, eventPhase, formatLong, formatTime, isTracked, SAFETY_OPENS_MIN, sportColors, sportIcon, spotsLeft, eligibilityTags, eventIcon } from '../utils/constants'
 import '../styles/safety.css'
 import '../styles/detail.css'
 
-export default function EventDetailPage({ session, event: a, data, actions, notify, onBack, focus, onCommented, openLive }) {
+export default function EventDetailPage({ session, navigate, event: a, data, actions, notify, onBack, focus, onCommented, openLive }) {
   const [tab, setTab] = useState('overview')
 
   // Opened from a "leave a comment" notification: jump to the comment box
@@ -32,7 +32,7 @@ export default function EventDetailPage({ session, event: a, data, actions, noti
   }, [focus, a?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const markers = useMemo(
-    () => (a?.coords ? [{ id: a.id, ...a.coords, icon: sportIcon(a.sport?.name), title: a.title }] : []),
+    () => (a?.coords ? [{ id: a.id, ...a.coords, icon: eventIcon(a), title: a.title }] : []),
     [a?.id, a?.coords?.lat, a?.coords?.lng] // eslint-disable-line react-hooks/exhaustive-deps
   )
 
@@ -81,12 +81,13 @@ export default function EventDetailPage({ session, event: a, data, actions, noti
         <div className="hero-inner" style={{ background: `linear-gradient(135deg, ${c1}, ${c2})` }}>
           <span className="hero-blob" style={{ background: c1 }} />
         </div>
-        <span className="hero-emoji">{sportIcon(sport)}</span>
+        <span className="hero-emoji">{eventIcon(a)}</span>
         <div className="hero-tags">
           <span className="tag tag-solid">{sport}</span>
           {a.category === 'professional' && <span className="tag tag-pro">PRO</span>}
           {a.type === 'team' && <span className="tag tag-team">Team vs Team</span>}
           {a.night_mode && <span className="tag tag-night">🌙 Night</span>}
+          {eligibilityTags(a).map((t) => <span key={t} className="tag tag-elig">{t}</span>)}
         </div>
         <span className={`status status-${a.status} hero-status`}>{a.status}</span>
         {eventPhase(a) !== 'ended' && a.status !== 'cancelled' && <WeatherChip activity={a} />}
@@ -272,7 +273,7 @@ export default function EventDetailPage({ session, event: a, data, actions, noti
               )}
             </>
           ) : (
-            <JoinButton activity={a} onJoin={actions.join} notify={notify} onChange={data.reload} />
+            <JoinButton activity={a} onJoin={actions.join} notify={notify} onChange={data.reload} onFixProfile={() => navigate('profile')} />
           )}
         </div>
       </div>

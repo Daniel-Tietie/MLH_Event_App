@@ -9,8 +9,24 @@ const SPORT_ICONS = {
   cycling: '🚴', running: '🏃', basketball: '🏀', hiking: '🥾', badminton: '🏸',
   tennis: '🎾', football: '⚽', soccer: '⚽', 'flag football': '🏈', rugby: '🏉',
   volleyball: '🏐', swimming: '🏊', yoga: '🧘', climbing: '🧗', hockey: '🏒',
+  pickleball: '🏓', 'table tennis': '🏓', squash: '🎾', golf: '⛳', 'ultimate frisbee': '🥏',
+  'disc golf': '🥏', baseball: '⚾', softball: '🥎', cricket: '🏏', 'ice skating': '⛸️',
+  walking: '🚶', 'trail running': '🏃', skiing: '⛷️', kayaking: '🛶', rowing: '🚣',
+  skateboarding: '🛹', boxing: '🥊', 'martial arts': '🥋', dance: '💃', 'gym workout': '🏋️',
+  bowling: '🎳', spikeball: '🏐',
 }
 export const sportIcon = (name = '') => SPORT_ICONS[name.toLowerCase()] || '🏅'
+
+// Person emojis that come in women's / men's versions (🚶 -> 🚶‍♀️ / 🚶‍♂️)
+const PERSON_EMOJI = ['🏃', '🚴', '🚶', '🏊', '🧘', '🧗', '🚣', '🏋️']
+// Icon for an event: a women's or men's event shows the matching person emoji
+export function eventIcon(a) {
+  const base = sportIcon(a?.sport?.name)
+  if (!PERSON_EMOJI.includes(base)) return base
+  if (a?.gender_rule === 'women') return `${base}\u200D\u2640\uFE0F`
+  if (a?.gender_rule === 'men') return `${base}\u200D\u2642\uFE0F`
+  return base
+}
 
 // Pastel pairs used for sport tiles and event icons
 const PASTELS = [
@@ -101,4 +117,45 @@ export function joinMode(a) {
   if (a.status === 'open' && spotsLeft(a) > 0) return 'join'
   const cutoff = new Date(a.starts_at).getTime() - WAITLIST_CUTOFF_MIN * 60e3
   return Date.now() < cutoff ? 'waitlist' : 'full'
+}
+
+// ---------- Who can join ----------
+export const GENDER_RULES = [
+  ['open', 'Everyone'],
+  ['women', "Women's"],
+  ['men', "Men's"],
+  ['women_nb', 'Women & non-binary'],
+]
+export const AGE_GROUPS = [
+  ['', 'All ages (18+)'],
+  ['18-25', '18–25'],
+  ['26-35', '26–35'],
+  ['30-', '30+'],
+  ['40-', '40+'],
+  ['50-', '50+'],
+  ['60-', '60+'],
+]
+export const GENDER_OPTIONS = [
+  ['', 'Optional'],
+  ['woman', 'Woman'],
+  ['man', 'Man'],
+  ['non_binary', 'Non-binary'],
+  ['prefer_not', 'Prefer not to say'],
+]
+export const isRestricted = (a) => (a?.gender_rule && a.gender_rule !== 'open') || a?.age_min || a?.age_max
+
+// Short labels for an event's restrictions, e.g. ["Women's", "50+"]
+export function eligibilityTags(a) {
+  const tags = []
+  const g = GENDER_RULES.find(([k]) => k === a?.gender_rule)
+  if (g && g[0] !== 'open') tags.push(g[1])
+  if (a?.age_min || a?.age_max) tags.push(a.age_max ? `${a.age_min || 18}–${a.age_max}` : `${a.age_min}+`)
+  return tags
+}
+
+// Latest birth date that's still 18 today, as YYYY-MM-DD (for the date picker's max)
+export function adultCutoff() {
+  const d = new Date()
+  d.setFullYear(d.getFullYear() - 18)
+  return d.toISOString().slice(0, 10)
 }

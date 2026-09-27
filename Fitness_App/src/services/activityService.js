@@ -2,17 +2,19 @@ import { supabase } from '../lib/supabaseClient'
 
 // All database calls live here. Each returns { data, error } like Supabase does.
 
-export function fetchActivities() {
-  return supabase
-    .from('activities')
-    .select(`
+const ACTIVITY_COLS = `
       id, host_id, title, description, type, category, opponent_team, city, address,
       location, starts_at, ends_at, max_participants, status, closed_by_cap, night_mode,
       sport:sports(id, name),
       host:profiles!host_id(full_name, avatar_url, is_verified),
-      activity_participants(user_id, status, checked_in_at)
-    `)
-    .order('starts_at')
+      activity_participants(user_id, status, checked_in_at)`
+
+// Events + who's in them. Also asks for the eligibility columns (gender_rule, age_min, age_max);
+// if eligibility-setup.sql hasn't been run yet, falls back to the basic columns so nothing breaks.
+export async function fetchActivities() {
+  const res = await supabase.from('activities').select(`${ACTIVITY_COLS}, gender_rule, age_min, age_max`).order('starts_at')
+  if (!res.error) return res
+  return supabase.from('activities').select(ACTIVITY_COLS).order('starts_at')
 }
 
 export const fetchSports = () => supabase.from('sports').select('id, name').order('name')
@@ -375,3 +377,14 @@ export async function removeAvatar(userId) {
   await saveAvatarUrl(userId, null)
   clearOldAvatars(userId, null).catch(() => {})
 }
+
+// ---------- Private details (DOB, gender) + eligibility ----------
+// Only you can read your own row. Used to check age-group / women's / men's events.
+export async function fetchMyDetails(userId) {
+  const { data, error } = await supabase.from('private_details').select('birth_date, gender').eq('user_id', userId).maybeSingle()
+  if (error) return null
+  return data
+}
+export const setMyDetails = (birthDate, gender) => rpc('set_my_details', { p_birth: birthDate || null, p_gender: gender || null })
+// null = you can join; otherwise the reason you can't
+export const fetchMyEligibility = (activityId) => rpc('my_eligibility', { p_activity: activityId })

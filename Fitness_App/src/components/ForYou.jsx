@@ -3,7 +3,7 @@ import Icon from './Icon'
 import { AvatarStack } from './Avatar'
 import { getProfile } from '../services/api'
 import { recommend } from '../utils/recommend'
-import { activePeople, formatDate, formatTime, sportColors, sportIcon, spotsLeft } from '../utils/constants'
+import { activePeople, formatDate, formatTime, sportColors, sportIcon, spotsLeft, eventIcon } from '../utils/constants'
 import '../styles/features.css'
 
 // "For you" row on Explore: events matched to the sports + levels on your profile
@@ -54,7 +54,7 @@ export default function ForYou({ session, activities, openEvent, navigate }) {
             <article key={a.id} className="foryou-card" onClick={() => openEvent(a.id)} role="button" tabIndex={0}
               onKeyDown={(e) => e.key === 'Enter' && openEvent(a.id)}>
               <div className="foryou-top" style={{ background: `linear-gradient(135deg, ${c1}, ${c2})` }}>
-                <span className="foryou-emoji">{sportIcon(a.sport?.name)}</span>
+                <span className="foryou-emoji">{eventIcon(a)}</span>
                 {a.category === 'professional' && <span className="tag tag-pro">PRO</span>}
               </div>
               <div className="foryou-body">

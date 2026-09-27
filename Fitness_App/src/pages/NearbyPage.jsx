@@ -3,7 +3,7 @@ import Icon from '../components/Icon'
 import MapView from '../components/MapView'
 import EventCard from '../components/EventCard'
 import { currentPosition, distanceKm } from '../utils/geo'
-import { DEFAULT_CENTER, isNotOver, sportIcon } from '../utils/constants'
+import { DEFAULT_CENTER, isNotOver, sportIcon, eventIcon } from '../utils/constants'
 import '../styles/explore.css'
 
 const RADII = [5, 10, 25, 50, null] // null = any distance
@@ -39,7 +39,7 @@ export default function NearbyPage({ data, openEvent, notify }) {
         id: a.id,
         lat: a.coords.lat,
         lng: a.coords.lng,
-        icon: sportIcon(a.sport?.name),
+        icon: eventIcon(a),
         title: a.title,
         variant: a.category === 'professional' ? 'pro' : '',
       })),

@@ -5,6 +5,7 @@ import { getProfile, setUserSports, updateProfile, verifyIdentityMock } from '..
 import { fetchActivityHistory, removeAvatar, uploadAvatar } from '../services/activityService'
 import { formatDate, sportColors, sportIcon } from '../utils/constants'
 import EmergencyContacts from '../components/EmergencyContacts'
+import PrivateDetails from '../components/PrivateDetails'
 import { reliabilityLevel, useReliability } from '../components/Reliability'
 import '../styles/social.css'
 import '../styles/features.css'
@@ -151,12 +152,15 @@ export default function ProfilePage({ session, data, notify, openEvent }) {
               <button role="menuitem" onClick={() => { setPhotoMenu(false); photoInput.current?.click() }}>
                 <Icon name="camera" size={16} /> {profile.avatarUrl ? 'Upload new photo' : 'Upload photo'}
               </button>
-              {profile.avatarUrl && (
-                <button role="menuitem" onClick={() => { setPhotoMenu(false); clearPhoto() }}>
-                  <span className="avatar-menu-initials">{(form.fullName || '?').split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()}</span>
-                  Use default
-                </button>
-              )}
+              <button
+                role="menuitem"
+                disabled={!profile.avatarUrl}
+                onClick={() => { setPhotoMenu(false); clearPhoto() }}
+              >
+                <span className="avatar-menu-initials">{(form.fullName || '?').split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()}</span>
+                Use default
+                {!profile.avatarUrl && <span className="avatar-menu-current"><Icon name="check" size={12} /> Current</span>}
+              </button>
             </div>
           )}
           <input
@@ -243,6 +247,8 @@ export default function ProfilePage({ session, data, notify, openEvent }) {
           {saving ? 'Saving...' : 'Save profile'}
         </button>
       </form>
+
+      <PrivateDetails userId={session.user.id} notify={notify} />
 
       <EmergencyContacts userId={session.user.id} notify={notify} />
 

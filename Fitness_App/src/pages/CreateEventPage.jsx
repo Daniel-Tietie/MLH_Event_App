@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import Icon from '../components/Icon'
 import MapView from '../components/MapView'
-import { createActivity } from '../services/activityService'
+import { createActivity, fetchMyDetails } from '../services/activityService'
 import { currentPosition, geocode, reverseGeocode, toPoint } from '../utils/geo'
-import { isNightTime, sportIcon } from '../utils/constants'
+import { isNightTime, sportIcon, AGE_GROUPS, GENDER_RULES } from '../utils/constants'
 import '../styles/forms.css'
 
 export default function CreateEventPage({ session, data, preset, notify, goBack, onCreated }) {
@@ -21,8 +21,20 @@ export default function CreateEventPage({ session, data, preset, notify, goBack,
     description: '',
     city: '',
     address: '',
+    gender_rule: 'open',
+    age_group: '',
   })
   const [night, setNight] = useState(false)
+  // Hosts can only run gender-specific events they could join themselves
+  const [myGender, setMyGender] = useState(undefined) // undefined = loading
+  useEffect(() => {
+    fetchMyDetails(session.user.id).then((d) => setMyGender(d?.gender || null))
+  }, [session.user.id])
+  const canHost = (rule) =>
+    rule === 'open' ||
+    (rule === 'women' && myGender === 'woman') ||
+    (rule === 'men' && myGender === 'man') ||
+    (rule === 'women_nb' && (myGender === 'woman' || myGender === 'non_binary'))
   const [coords, setCoords] = useState(null)
   const [mapCenter, setMapCenter] = useState(null)
   const [place, setPlace] = useState('')
@@ -90,6 +102,12 @@ export default function CreateEventPage({ session, data, preset, notify, goBack,
       max_participants: Number(form.max_participants),
       night_mode: night,
       status: 'open',
+      // Only sent when set, so creating events still works before eligibility-setup.sql is run
+      ...(form.gender_rule !== 'open' ? { gender_rule: form.gender_rule } : {}),
+      ...(form.age_group ? (() => {
+        const [lo, hi] = form.age_group.split('-')
+        return { age_min: Number(lo), age_max: hi ? Number(hi) : null }
+      })() : {}),
     })
 
     setBusy(false)
@@ -156,6 +174,33 @@ export default function CreateEventPage({ session, data, preset, notify, goBack,
             <Icon name="users" size={18} />
           </label>
         </div>
+
+        <div className="row">
+          <label className="field-labelled">
+            <span>Who can join</span>
+            <select value={form.gender_rule} onChange={set('gender_rule')}>
+              {GENDER_RULES.map(([v, l]) => (
+                <option key={v} value={v} disabled={!canHost(v)}>{l}{canHost(v) ? '' : ' (not available)'}</option>
+              ))}
+            </select>
+          </label>
+          <label className="field-labelled">
+            <span>Age group</span>
+            <select value={form.age_group} onChange={set('age_group')}>
+              {AGE_GROUPS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+            </select>
+          </label>
+        </div>
+        {myGender !== undefined && !GENDER_RULES.every(([v]) => canHost(v)) && (
+          <p className="muted small">
+            {myGender && myGender !== 'prefer_not'
+              ? 'You can host gender-specific events you could join yourself.'
+              : 'To host a women\'s or men\'s event, set your gender in Private details on your profile.'}
+          </p>
+        )}
+        {(form.gender_rule !== 'open' || form.age_group) && (
+          <p className="muted small">Players' age and gender stay private. Rally only checks they fit when they join.</p>
+        )}
 
         {form.type === 'team' && (
           <input placeholder="Opponent team (leave blank for an open challenge)" value={form.opponent_team} onChange={set('opponent_team')} />

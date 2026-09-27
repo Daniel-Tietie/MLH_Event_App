@@ -4,7 +4,7 @@ import { Avatar } from './Avatar'
 import {
   fetchConversation, fetchDmThreads, markDmRead, sendDm, subscribeDms,
 } from '../services/activityService'
-import { activePeople, formatDate, formatTime, isNotOver, sportColors, sportIcon } from '../utils/constants'
+import { activePeople, formatDate, formatTime, isNotOver, sportColors, sportIcon, eventIcon } from '../utils/constants'
 
 const ago = (iso) => {
   const m = Math.round((Date.now() - new Date(iso)) / 60000)
@@ -182,7 +182,7 @@ function Conversation({ me, other, canMessage, activities, openEvent, notify, on
                 {m.activity_id && (
                   ev ? (
                     <button className="dm-event" onClick={() => openEvent(ev.id)}>
-                      <span className="dm-event-icon" style={{ background: sportColors(ev.sport?.name)[0] }}>{sportIcon(ev.sport?.name)}</span>
+                      <span className="dm-event-icon" style={{ background: sportColors(ev.sport?.name)[0] }}>{eventIcon(ev)}</span>
                       <span>
                         <strong>{ev.title}</strong>
                         <span>{formatDate(ev.starts_at)} · {formatTime(ev.starts_at)}{ev.city ? ` · ${ev.city}` : ''}</span>
@@ -206,7 +206,7 @@ function Conversation({ me, other, canMessage, activities, openEvent, notify, on
             <p className="muted small">You're not hosting or going to anything yet.</p>
           ) : myUpcoming.slice(0, 6).map((a) => (
             <button key={a.id} className="dm-pick" disabled={sending} onClick={() => send('', a.id)}>
-              {sportIcon(a.sport?.name)} {a.title} <span className="muted">· {formatDate(a.starts_at)}</span>
+              {eventIcon(a)} {a.title} <span className="muted">· {formatDate(a.starts_at)}</span>
             </button>
           ))}
         </div>

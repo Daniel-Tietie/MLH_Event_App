@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { signIn, signUp } from '../services/authService'
-import { APP_NAME, TAGLINE } from '../utils/constants'
+import { APP_NAME, TAGLINE, GENDER_OPTIONS, adultCutoff } from '../utils/constants'
 import '../styles/auth.css'
 
 const SHOWCASE = [
@@ -12,7 +12,7 @@ const SHOWCASE = [
 
 export default function AuthPage() {
   const [mode, setMode] = useState('signin')
-  const [form, setForm] = useState({ fullName: '', email: '', password: '' })
+  const [form, setForm] = useState({ fullName: '', email: '', password: '', birthDate: '', gender: '' })
   const [error, setError] = useState(null)
   const [busy, setBusy] = useState(false)
 
@@ -23,8 +23,12 @@ export default function AuthPage() {
     e.preventDefault()
     setBusy(true)
     setError(null)
+    if (isSignup && form.birthDate > adultCutoff()) {
+      setBusy(false)
+      return setError('You need to be 18 or older to join Rally.')
+    }
     const { error } = isSignup
-      ? await signUp(form.email, form.password, form.fullName)
+      ? await signUp(form.email, form.password, form.fullName, form.birthDate, form.gender)
       : await signIn(form.email, form.password)
     if (error) setError(error.message)
     setBusy(false)
@@ -63,6 +67,21 @@ export default function AuthPage() {
           <p className="muted">{isSignup ? 'Join your local sports community.' : 'Sign in to find your next game.'}</p>
 
           {isSignup && <input placeholder="Full name*" value={form.fullName} onChange={set('fullName')} required />}
+          {isSignup && (
+            <div className="row">
+              <label className="field-labelled">
+                <span>Date of birth*</span>
+                <input type="date" value={form.birthDate} onChange={set('birthDate')} max={adultCutoff()} min="1910-01-01" required />
+              </label>
+              <label className="field-labelled">
+                <span>Gender</span>
+                <select value={form.gender} onChange={set('gender')}>
+                  {GENDER_OPTIONS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                </select>
+              </label>
+            </div>
+          )}
+          {isSignup && <p className="muted small auth-private">Private: never shown to anyone. Only used for 18+ and for age-group or women's/men's games.</p>}
           <input type="email" placeholder="Email*" value={form.email} onChange={set('email')} required />
           <input type="password" minLength={6} placeholder="Password (6+ characters)*" value={form.password} onChange={set('password')} required />
 

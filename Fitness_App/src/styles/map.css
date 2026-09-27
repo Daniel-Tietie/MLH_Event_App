@@ -30,5 +30,3 @@
 
 .leaflet-tooltip { font-family: inherit; font-weight: 700; border-radius: 8px; }
 .leaflet-container { font-family: inherit; }
-
-.leaflet-tile-pane { filter: saturate(0.7) brightness(1.04); }
