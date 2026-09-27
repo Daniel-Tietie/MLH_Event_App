@@ -3,7 +3,7 @@ import Icon from '../components/Icon'
 import EventCard from '../components/EventCard'
 import SportTiles from '../components/SportTiles'
 import ForYou from '../components/ForYou'
-import { spotsLeft } from '../utils/constants'
+import { isNotOver, spotsLeft } from '../utils/constants'
 import '../styles/explore.css'
 
 const SORTS = { soon: 'Soonest', spots: 'Most spots', new: 'Newest' }
@@ -18,9 +18,9 @@ export default function ExplorePage({ session, data, openEvent, navigate }) {
   const [sort, setSort] = useState('soon')
   const [openOnly, setOpenOnly] = useState(false)
 
-  // Only show events that haven't finished (started less than 3h ago)
+  // Only show events that aren't over (not completed, cancelled, or past their end time)
   const upcoming = useMemo(
-    () => activities.filter((a) => new Date(a.starts_at) > Date.now() - 3 * 3600e3 && a.status !== 'cancelled'),
+    () => activities.filter(isNotOver),
     [activities]
   )
 

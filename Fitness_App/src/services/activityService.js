@@ -56,8 +56,9 @@ export async function fetchActivityHistory(userId) {
   if (e3 || e4) throw new Error((e3 || e4).message)
 
   const reviewBy = Object.fromEntries((reviews || []).map((r) => [r.activity_id, r.body]))
+  const signed = await signPhotoUrls((photos || []).map((p) => p.image_url))
   const photosBy = {}
-  ;(photos || []).forEach((p) => (photosBy[p.activity_id] ||= []).push(p.image_url))
+  ;(photos || []).forEach((p) => (photosBy[p.activity_id] ||= []).push(signed[p.image_url] || p.image_url))
   return (events || []).map((e) => ({
     ...e,
     sport: e.sport?.name,
@@ -114,14 +115,69 @@ export async function uploadActivityPhoto(activityId, userId, file) {
   return data.publicUrl
 }
 
-export async function fetchActivityPhotos(activityId) {
-  const { data, error } = await supabase
-    .from('activity_photos')
-    .select('id, image_url, user_id, created_at')
-    .eq('activity_id', activityId)
-    .order('created_at', { ascending: false })
+// The photo bucket is private (only event members can open files), so stored URLs
+// are turned into short-lived signed links. Falls back to the stored URL if signing fails.
+const PHOTO_BUCKET = 'activity-photos'
+const photoPath = (url = '') => url.split(`/${PHOTO_BUCKET}/`)[1]?.split('?')[0]
+
+export async function signPhotoUrls(urls) {
+  const paths = [...new Set(urls.map(photoPath).filter(Boolean))]
+  if (!paths.length) return {}
+  const { data, error } = await supabase.storage.from(PHOTO_BUCKET).createSignedUrls(paths, 3600)
+  if (error || !data) return {}
+  const byPath = Object.fromEntries(data.filter((d) => d.signedUrl).map((d) => [d.path, d.signedUrl]))
+  return Object.fromEntries(urls.map((u) => [u, byPath[photoPath(u)]]).filter(([, v]) => v))
+}
+
+// Photos with who uploaded them + report info.
+//   uploader -> { full_name, avatar_url } | null
+//   reports  -> how many flags (host sees all, others only their own)
+//   reportedByMe, hidden
+export async function fetchActivityPhotos(activityId, userId) {
+  const query = (cols) =>
+    supabase.from('activity_photos').select(cols).eq('activity_id', activityId).order('created_at', { ascending: false })
+
+  let { data, error } = await query('id, image_url, user_id, created_at, hidden')
+  // Before photo-reports.sql is run there's no "hidden" column, so fall back
+  if (error) ({ data, error } = await query('id, image_url, user_id, created_at'))
   if (error) throw new Error(error.message)
-  return data || []
+  const photos = data || []
+  if (!photos.length) return []
+
+  const [{ data: people }, { data: reports }, signed] = await Promise.all([
+    fetchProfiles([...new Set(photos.map((p) => p.user_id))]),
+    supabase.from('photo_reports').select('photo_id, reporter_id').in('photo_id', photos.map((p) => p.id)),
+    signPhotoUrls(photos.map((p) => p.image_url)),
+  ])
+  const byId = Object.fromEntries((people || []).map((p) => [p.id, p]))
+  const count = {}
+  const mine = new Set()
+  ;(reports || []).forEach((r) => {
+    count[r.photo_id] = (count[r.photo_id] || 0) + 1
+    if (r.reporter_id === userId) mine.add(r.photo_id)
+  })
+
+  return photos.map((p) => ({
+    ...p,
+    image_url: signed[p.image_url] || p.image_url,
+    hidden: !!p.hidden,
+    uploader: byId[p.user_id] || null,
+    reports: count[p.id] || 0,
+    reportedByMe: mine.has(p.id),
+  }))
+}
+
+// Flag a photo. Resolves to true if it got auto-hidden (3+ reports).
+export async function reportPhoto(photoId, reason) {
+  const { data, error } = await supabase.rpc('report_photo', { p_photo: photoId, p_reason: reason || null })
+  if (error) throw new Error(error.message)
+  return data
+}
+
+// Host or uploader hides / restores a photo
+export async function setPhotoHidden(photoId, hidden) {
+  const { error } = await supabase.rpc('set_photo_hidden', { p_photo: photoId, p_hidden: hidden })
+  if (error) throw new Error(error.message)
 }
 
 // ---------- Team challenges ----------

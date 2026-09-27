@@ -80,3 +80,9 @@ export function eventPhase(a) {
   if (now >= start - SAFETY_OPENS_MIN * 60e3) return 'live'
   return 'upcoming'
 }
+
+// Still on the schedule? (not completed, cancelled, or past its end time)
+export const isNotOver = (a) => {
+  const phase = eventPhase(a)
+  return phase === 'upcoming' || phase === 'live'
+}

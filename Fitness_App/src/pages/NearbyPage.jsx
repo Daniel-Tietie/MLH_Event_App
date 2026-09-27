@@ -3,7 +3,7 @@ import Icon from '../components/Icon'
 import MapView from '../components/MapView'
 import EventCard from '../components/EventCard'
 import { currentPosition, distanceKm } from '../utils/geo'
-import { DEFAULT_CENTER, sportIcon } from '../utils/constants'
+import { DEFAULT_CENTER, isNotOver, sportIcon } from '../utils/constants'
 import '../styles/explore.css'
 
 const RADII = [5, 10, 25, 50, null] // null = any distance
@@ -27,7 +27,7 @@ export default function NearbyPage({ data, openEvent, notify }) {
 
   const nearby = useMemo(() => {
     return data.activities
-      .filter((a) => a.coords && new Date(a.starts_at) > Date.now() - 3 * 3600e3 && a.status !== 'cancelled')
+      .filter((a) => a.coords && isNotOver(a))
       .map((a) => ({ ...a, distance: pos ? distanceKm(pos, a.coords) : null }))
       .filter((a) => radius == null || a.distance == null || a.distance <= radius)
       .sort((a, b) => (a.distance ?? 0) - (b.distance ?? 0))

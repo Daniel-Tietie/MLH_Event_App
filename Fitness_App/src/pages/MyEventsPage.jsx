@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import EventCard from '../components/EventCard'
+import { isNotOver } from '../utils/constants'
 import '../styles/explore.css'
 import '../styles/social.css'
 
@@ -29,10 +30,9 @@ export default function MyEventsPage({ session, data, openEvent, navigate }) {
   const counts = { all: mine.length, host: mine.filter((a) => a.role === 'host').length, joined: mine.filter((a) => a.role === 'joined').length }
   const list = tab === 'all' ? mine : mine.filter((a) => a.role === tab)
 
-  // "Upcoming" includes events that started less than 3 hours ago (still happening)
-  const cutoff = Date.now() - 3 * 3600e3
-  const upcoming = list.filter((a) => new Date(a.starts_at) >= cutoff)
-  const past = list.filter((a) => new Date(a.starts_at) < cutoff).reverse()
+  // Upcoming = not over yet (includes events happening right now). Past = completed, cancelled or finished.
+  const upcoming = list.filter(isNotOver)
+  const past = list.filter((a) => !isNotOver(a)).reverse()
 
   return (
     <div className="page">

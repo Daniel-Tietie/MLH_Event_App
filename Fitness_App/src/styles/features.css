@@ -44,7 +44,47 @@
   position: absolute; top: 6px; right: 6px; width: 24px; height: 24px; border-radius: 50%;
   border: 0; background: rgba(0, 0, 0, 0.65); color: #fff; display: grid; place-items: center; cursor: pointer;
 }
-.lightbox { max-width: min(92vw, 1000px); max-height: 86vh; border-radius: 16px; box-shadow: var(--shadow-lg); animation: pop 0.2s ease; }
+/* Who uploaded it: small avatar in the corner of each thumbnail */
+.photo-by {
+  position: absolute; left: 6px; bottom: 6px; padding: 3px 8px; border-radius: 999px;
+  background: rgba(0, 0, 0, 0.65); color: #fff; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.02em;
+}
+.photo-flag {
+  position: absolute; top: 6px; right: 6px; padding: 2px 7px; border-radius: 999px;
+  background: var(--danger); color: #fff; font-size: 0.7rem; font-weight: 800;
+}
+.photo.is-hidden img, .lightbox.is-hidden { filter: grayscale(1) blur(2px); opacity: 0.6; }
+
+/* Lightbox + uploader banner */
+.photo-viewer {
+  position: relative; margin: 0; display: flex; flex-direction: column; gap: 10px;
+  width: min(92vw, 760px); animation: pop 0.2s ease;
+}
+.lightbox { width: 100%; max-height: 70vh; object-fit: contain; border-radius: 16px; background: #000; box-shadow: var(--shadow-lg); display: block; }
+.viewer-close {
+  position: absolute; top: 10px; right: 10px; z-index: 1; width: 34px; height: 34px; border-radius: 50%;
+  border: 0; background: rgba(0, 0, 0, 0.6); color: #fff; display: grid; place-items: center; cursor: pointer;
+}
+.uploader-banner {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  background: var(--surface); border-radius: 14px; box-shadow: var(--shadow);
+}
+.uploader-text { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.uploader-text strong { display: flex; align-items: center; gap: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.host-tag { font-size: 0.68rem; font-weight: 800; padding: 2px 7px; border-radius: 999px; background: var(--primary-soft); color: var(--primary); }
+.uploader-actions { display: flex; gap: 6px; align-items: center; flex: none; }
+.btn-report { background: #fdecec; color: var(--danger); border: 0; }
+.btn-report.solid { background: var(--danger); color: #fff; }
+.reported-tag { font-size: 0.8rem; font-weight: 700; color: var(--danger); }
+.report-box { background: var(--surface); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.report-box .chip-row { margin: 0; flex-wrap: wrap; }
+.report-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.viewer-msg { margin: 0; padding: 8px 12px; border-radius: 10px; background: var(--green-soft); color: var(--green); font-weight: 700; font-size: 0.88rem; }
+
+@media (max-width: 520px) {
+  .uploader-banner { flex-wrap: wrap; }
+  .uploader-actions { width: 100%; justify-content: flex-end; }
+}
 
 .history-photos { display: flex; gap: 6px; margin-top: 4px; }
 .history-photos img { width: 56px; height: 56px; object-fit: cover; border-radius: 10px; }
@@ -65,3 +105,9 @@
 
 /* History cards: keep the sport icon square (the text column takes the rest) */
 .history-item > .ecard-icon { flex: none; width: 46px; height: 46px; display: grid; place-items: center; border-radius: 14px; }
+
+.private-note {
+  display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+  border-radius: 14px; background: var(--surface-2); color: var(--muted);
+}
+.private-note p { margin: 0; }

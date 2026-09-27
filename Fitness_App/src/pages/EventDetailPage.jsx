@@ -105,7 +105,7 @@ export default function EventDetailPage({ session, event: a, data, actions, noti
               <p>Everyone checks in with a personal QR code on arrival.{a.night_mode && ' This is a night event, so attendees are asked to share live location with a trusted contact.'}</p>
             </div>
           </div>
-          <Comments activity={a} userId={userId} attended={isHost || me?.status === 'checked_in'} onCommented={onCommented} />
+          <Comments activity={a} userId={userId} member={isHost || !!me} attended={isHost || me?.status === 'checked_in'} onCommented={onCommented} />
         </div>
       )}
 
