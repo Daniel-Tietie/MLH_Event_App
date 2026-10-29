@@ -247,7 +247,7 @@ function LiveSession({ session, a, phase, notify, goBack, data }) {
     setStatuses((s) => ({ ...s, [userId]: 'checked_out' }))
     recordSafety(a.id, userId, 'checked_out')
     channel.current?.send('status', { userId, name: myName, status: 'checked_out', reason })
-    notify(reason === 'early' ? 'Checked out early. Get home safe! 👋' : 'Checked out. Get home safe! 👋', 'success')
+    notify(reason === 'early' ? 'Checked out early. Get home safe!' : 'Checked out. Get home safe!', 'success')
     goBack()
   }
 

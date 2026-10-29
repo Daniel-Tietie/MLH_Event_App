@@ -62,7 +62,7 @@ export default function ChatPanel({ activityId, userId, canChat }) {
   return (
     <div className="chat card">
       <div className="chat-list" ref={listRef}>
-        {messages.length === 0 && <p className="muted chat-empty">No messages yet. Say hi 👋</p>}
+        {messages.length === 0 && <p className="muted chat-empty">No messages yet. Say hi.</p>}
         {messages.map((m) => {
           const mine = m.senderId === userId
           return (

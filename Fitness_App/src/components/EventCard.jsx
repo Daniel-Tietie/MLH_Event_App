@@ -32,7 +32,7 @@ export default function EventCard({ activity: a, onOpen, distance, role }) {
           </span>
           {isPro && <span className="tag tag-pro">PRO</span>}
           {a.type === 'team' && <span className="tag tag-team">Team vs Team</span>}
-          {a.night_mode && <span className="tag tag-night">🌙 Night</span>}
+          {a.night_mode && <span className="tag tag-night">Night</span>}
           {eligibilityTags(a).map((t) => <span key={t} className="tag tag-elig">{t}</span>)}
           {eventPhase(a) === 'live' && new Date(a.starts_at) <= new Date() && <span className="tag tag-live">● Live now</span>}
         </div>

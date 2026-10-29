@@ -86,7 +86,7 @@ export default function EventDetailPage({ session, navigate, event: a, data, act
           <span className="tag tag-solid">{sport}</span>
           {a.category === 'professional' && <span className="tag tag-pro">PRO</span>}
           {a.type === 'team' && <span className="tag tag-team">Team vs Team</span>}
-          {a.night_mode && <span className="tag tag-night">🌙 Night</span>}
+          {a.night_mode && <span className="tag tag-night">Night</span>}
           {eligibilityTags(a).map((t) => <span key={t} className="tag tag-elig">{t}</span>)}
         </div>
         <span className={`status status-${a.status} hero-status`}>{a.status}</span>

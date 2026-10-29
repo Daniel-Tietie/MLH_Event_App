@@ -77,7 +77,7 @@ export default function Messages({ userId, friends, activities, openEvent, notif
                 <Avatar name={f.full_name} url={f.avatar_url} size={40} />
                 <span className="dm-thread-text">
                   <strong>{f.full_name || 'Player'}</strong>
-                  <span className="muted">Say hi 👋</span>
+                  <span className="muted">Say hi</span>
                 </span>
               </button>
             ))}

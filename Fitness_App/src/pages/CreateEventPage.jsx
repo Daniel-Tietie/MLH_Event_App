@@ -136,8 +136,8 @@ export default function CreateEventPage({ session, data, preset, notify, goBack,
             {sports.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
           <select value={form.category} onChange={set('category')} aria-label="Level">
-            <option value="casual">🟢  Casual</option>
-            <option value="professional">🟠  Professional</option>
+            <option value="casual">Casual</option>
+            <option value="professional">Professional</option>
           </select>
         </div>
 
@@ -166,8 +166,8 @@ export default function CreateEventPage({ session, data, preset, notify, goBack,
 
         <div className="row">
           <select value={form.type} onChange={set('type')} aria-label="Format">
-            <option value="casual">👥  Group activity</option>
-            <option value="team">⚔️  Team vs team</option>
+            <option value="casual">Group activity</option>
+            <option value="team">Team vs team</option>
           </select>
           <label className="with-icon">
             <input type="number" min="1" max="200" value={form.max_participants} onChange={set('max_participants')} required aria-label="Max people" />

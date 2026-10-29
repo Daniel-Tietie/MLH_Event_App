@@ -49,7 +49,7 @@ export default function ExplorePage({ session, data, openEvent, navigate }) {
     <div className="page">
       <header className="page-head">
         <div>
-          <p className="eyebrow">{firstName ? `Hi ${firstName} 👋` : 'Welcome 👋'}</p>
+          <p className="eyebrow">{firstName ? `Hi ${firstName}` : 'Welcome'}</p>
           <h1>Find your next game</h1>
         </div>
         <div className="head-actions">

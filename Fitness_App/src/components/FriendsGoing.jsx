@@ -36,7 +36,7 @@ export default function FriendsGoing({ session, activities, openEvent }) {
   return (
     <section className="section">
       <div className="section-head">
-        <h2>Friends are going 👋</h2>
+        <h2>Friends are going</h2>
         <span className="muted small">People you follow</span>
       </div>
       <div className="foryou-row">

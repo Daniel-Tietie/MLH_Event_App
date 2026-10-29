@@ -167,7 +167,7 @@ function Main({ session }) {
     safe: async (a) => {
       setCheckedOut((cur) => new Set([...cur, a.id]))
       await recordSafety(a.id, session.user.id, 'safe')
-      notify('Thanks! Glad you got home safe 👋', 'success')
+      notify('Thanks! Glad you got home safe.', 'success')
     },
     help: (a) => go(`#/live/${a.id}`),
   }
