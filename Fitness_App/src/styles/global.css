@@ -234,3 +234,7 @@ textarea { resize: vertical; }
 @keyframes pop { from { opacity: 0; transform: scale(0.96); } }
 @keyframes slide-up { from { opacity: 0; transform: translateY(10px); } }
 @keyframes shimmer { to { background-position: -200% 0; } }
+
+/* sport icons (svg) and the letter fallback for sports without one */
+.sport-icon { display: inline-block; vertical-align: -0.125em; flex-shrink: 0; }
+.sport-letter { display: inline-block; font-weight: 700; line-height: 1; font-size: 0.85em; }

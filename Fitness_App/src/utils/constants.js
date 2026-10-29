@@ -1,3 +1,6 @@
+import { createElement } from 'react'
+import SportIcon from '../components/SportIcon'
+
 // Change the app name here and it updates everywhere
 export const APP_NAME = 'Rally'
 export const TAGLINE = 'Play more. Meet your people.'
@@ -5,28 +8,10 @@ export const TAGLINE = 'Play more. Meet your people.'
 // Map starts here if the browser won't share location
 export const DEFAULT_CENTER = { lat: 45.9636, lng: -66.6431 } // Fredericton, NB
 
-const SPORT_ICONS = {
-  cycling: '🚴', running: '🏃', basketball: '🏀', hiking: '🥾', badminton: '🏸',
-  tennis: '🎾', football: '⚽', soccer: '⚽', 'flag football': '🏈', rugby: '🏉',
-  volleyball: '🏐', swimming: '🏊', yoga: '🧘', climbing: '🧗', hockey: '🏒',
-  pickleball: '🏓', 'table tennis': '🏓', squash: '🎾', golf: '⛳', 'ultimate frisbee': '🥏',
-  'disc golf': '🥏', baseball: '⚾', softball: '🥎', cricket: '🏏', 'ice skating': '⛸️',
-  walking: '🚶', 'trail running': '🏃', skiing: '⛷️', kayaking: '🛶', rowing: '🚣',
-  skateboarding: '🛹', boxing: '🥊', 'martial arts': '🥋', dance: '💃', 'gym workout': '🏋️',
-  bowling: '🎳', spikeball: '🏐',
-}
-export const sportIcon = (name = '') => SPORT_ICONS[name.toLowerCase()] || '🏅'
-
-// Person emojis that come in women's / men's versions (🚶 -> 🚶‍♀️ / 🚶‍♂️)
-const PERSON_EMOJI = ['🏃', '🚴', '🚶', '🏊', '🧘', '🧗', '🚣', '🏋️']
-// Icon for an event: a women's or men's event shows the matching person emoji
-export function eventIcon(a) {
-  const base = sportIcon(a?.sport?.name)
-  if (!PERSON_EMOJI.includes(base)) return base
-  if (a?.gender_rule === 'women') return `${base}\u200D\u2640\uFE0F`
-  if (a?.gender_rule === 'men') return `${base}\u200D\u2642\uFE0F`
-  return base
-}
+// sport icons are line svgs now, see components/SportIcon.jsx
+export const sportIcon = (name = '') => createElement(SportIcon, { name })
+// icon for an event, same as its sport
+export const eventIcon = (a) => sportIcon(a?.sport?.name)
 
 // Pastel pairs used for sport tiles and event icons
 const PASTELS = [

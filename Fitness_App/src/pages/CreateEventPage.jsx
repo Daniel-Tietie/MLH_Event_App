@@ -3,7 +3,7 @@ import Icon from '../components/Icon'
 import MapView from '../components/MapView'
 import { createActivity, fetchMyDetails } from '../services/activityService'
 import { currentPosition, geocode, reverseGeocode, toPoint } from '../utils/geo'
-import { isNightTime, sportIcon, AGE_GROUPS, GENDER_RULES } from '../utils/constants'
+import { isNightTime, AGE_GROUPS, GENDER_RULES } from '../utils/constants'
 import '../styles/forms.css'
 
 export default function CreateEventPage({ session, data, preset, notify, goBack, onCreated }) {
@@ -133,7 +133,7 @@ export default function CreateEventPage({ session, data, preset, notify, goBack,
 
         <div className="row">
           <select value={form.sport_id} onChange={set('sport_id')} required aria-label="Sport">
-            {sports.map((s) => <option key={s.id} value={s.id}>{sportIcon(s.name)}  {s.name}</option>)}
+            {sports.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
           <select value={form.category} onChange={set('category')} aria-label="Level">
             <option value="casual">🟢  Casual</option>

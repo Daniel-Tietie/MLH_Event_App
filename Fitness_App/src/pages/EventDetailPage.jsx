@@ -32,7 +32,7 @@ export default function EventDetailPage({ session, navigate, event: a, data, act
   }, [focus, a?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const markers = useMemo(
-    () => (a?.coords ? [{ id: a.id, ...a.coords, icon: eventIcon(a), title: a.title }] : []),
+    () => (a?.coords ? [{ id: a.id, ...a.coords, sport: a.sport?.name, title: a.title }] : []),
     [a?.id, a?.coords?.lat, a?.coords?.lng] // eslint-disable-line react-hooks/exhaustive-deps
   )
 

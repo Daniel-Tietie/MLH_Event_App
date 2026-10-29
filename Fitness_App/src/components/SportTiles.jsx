@@ -1,4 +1,5 @@
 import { sportColors, sportIcon } from '../utils/constants'
+import SportIcon from './SportIcon'
 
 // "All Category" grid with pastel blobs behind each sport icon
 export default function SportTiles({ sports, counts, total, selected, onSelect }) {
@@ -23,7 +24,7 @@ export default function SportTiles({ sports, counts, total, selected, onSelect }
             <span className="tile-art">
               <span className="blob blob-a" style={{ background: a }} />
               <span className="blob blob-b" style={{ background: b }} />
-              <span className="tile-emoji">{t.id ? sportIcon(t.name) : '🏅'}</span>
+              <span className="tile-emoji">{t.id ? sportIcon(t.name) : <SportIcon icon="medal" />}</span>
             </span>
             <strong>{t.name}</strong>
             <small>{t.count} event{t.count === 1 ? '' : 's'}</small>

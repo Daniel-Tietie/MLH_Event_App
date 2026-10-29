@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { DEFAULT_CENTER } from '../utils/constants'
+import { sportSvg } from './SportIcon'
 import '../styles/map.css'
 
 // Free OpenStreetMap tiles. No API key needed.
@@ -11,10 +12,10 @@ const TILES = CARTO_KEY
   : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
 const ATTRIBUTION = CARTO_KEY ? '&copy; OpenStreetMap contributors &copy; CARTO' : '&copy; OpenStreetMap contributors'
 
-const pinIcon = (emoji, variant = '') =>
+const pinIcon = (sport, variant = '') =>
   L.divIcon({
     className: '',
-    html: `<div class="map-pin ${variant}"><span>${emoji}</span></div>`,
+    html: `<div class="map-pin ${variant}"><span>${sport ? sportSvg(sport) : sportSvg(null, 'map-pin')}</span></div>`,
     iconSize: [40, 48],
     iconAnchor: [20, 46],
   })
@@ -22,7 +23,7 @@ const pinIcon = (emoji, variant = '') =>
 const youIcon = L.divIcon({ className: '', html: '<div class="map-you"></div>', iconSize: [18, 18], iconAnchor: [9, 9] })
 
 /**
- * markers:  [{ id, lat, lng, icon, title, variant }]  event pins
+ * markers:  [{ id, lat, lng, sport, title, variant }]  event pins
  * picked:   { lat, lng }  the pin a host drops (Create page)
  * userPos:  { lat, lng }  blue "you are here" dot
  * radiusKm: draws a circle around userPos
@@ -76,7 +77,7 @@ export default function MapView({
     const points = []
     markers.forEach((mk) => {
       if (mk.lat == null) return
-      const marker = L.marker([mk.lat, mk.lng], { icon: pinIcon(mk.icon || '📍', mk.variant) })
+      const marker = L.marker([mk.lat, mk.lng], { icon: pinIcon(mk.sport, mk.variant) })
       if (mk.title) marker.bindTooltip(mk.title, { direction: 'top', offset: [0, -42] })
       marker.on('click', () => handlers.current.onMarkerClick?.(mk.id))
       marker.addTo(layers.current.events)

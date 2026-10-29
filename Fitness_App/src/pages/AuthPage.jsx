@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import { signIn, signUp } from '../services/authService'
 import { APP_NAME, TAGLINE, GENDER_OPTIONS, adultCutoff } from '../utils/constants'
+import SportIcon from '../components/SportIcon'
 import '../styles/auth.css'
 
 const SHOWCASE = [
-  { emoji: '🚴', name: 'Cycling', count: '12 rides', a: '#fde9a9', b: '#cfdcff' },
-  { emoji: '🏀', name: 'Basketball', count: '8 games', a: '#f8cfdc', b: '#fde0c8' },
-  { emoji: '🥾', name: 'Hiking', count: '5 trails', a: '#cdeedd', b: '#cfdcff' },
-  { emoji: '🎾', name: 'Tennis', count: '9 matches', a: '#dcd3ff', b: '#f8cfdc' },
+  { name: 'Cycling', count: '12 rides', a: '#fde9a9', b: '#cfdcff' },
+  { name: 'Basketball', count: '8 games', a: '#f8cfdc', b: '#fde0c8' },
+  { name: 'Hiking', count: '5 trails', a: '#cdeedd', b: '#cfdcff' },
+  { name: 'Tennis', count: '9 matches', a: '#dcd3ff', b: '#f8cfdc' },
 ]
 
 export default function AuthPage() {
@@ -52,7 +53,7 @@ export default function AuthPage() {
               <span className="tile-art">
                 <span className="blob blob-a" style={{ background: s.a }} />
                 <span className="blob blob-b" style={{ background: s.b }} />
-                <span className="tile-emoji">{s.emoji}</span>
+                <span className="tile-emoji"><SportIcon name={s.name} /></span>
               </span>
               <strong>{s.name}</strong>
               <small>{s.count}</small>
