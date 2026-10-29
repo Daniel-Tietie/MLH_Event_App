@@ -9,6 +9,10 @@
 create extension if not exists postgis;
 create extension if not exists pgcrypto;
 
+-- postgis puts spatial_ref_sys in public with no rls, so make it read only for app users
+revoke all on public.spatial_ref_sys from anon, authenticated;
+grant select on public.spatial_ref_sys to anon, authenticated;
+
 -- ---------- Types ----------
 do $$ begin create type sport_level as enum ('casual', 'competitive', 'professional', 'd1', 'd2', 'ex_player', 'retired');
 exception when duplicate_object then null; end $$;
