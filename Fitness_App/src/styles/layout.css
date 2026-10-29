@@ -29,9 +29,10 @@
   display: flex; align-items: center; gap: 14px; width: 100%;
   background: none; border: 1.5px solid transparent; border-radius: 14px;
   padding: 12px 14px; font-size: 0.95rem; font-weight: 600; color: var(--ink); text-align: left;
-  cursor: pointer; transition: background 0.15s;
+  cursor: pointer; transition: background 0.15s, transform 0.15s;
 }
 .side-link:hover { background: var(--surface-2); }
+.side-link:not(.active):hover { transform: translateX(2px); }
 .side-link.active {
   background: var(--yellow); border-color: var(--outline);
   box-shadow: 0 8px 18px rgba(246, 213, 106, 0.55);

@@ -239,3 +239,24 @@ textarea { resize: vertical; }
 .sport-icon { display: inline-block; vertical-align: -0.125em; flex-shrink: 0; }
 .sport-letter { display: inline-block; font-weight: 700; line-height: 1; font-size: 0.85em; }
 .icon-inline { vertical-align: -0.125em; }
+
+/* ---------- Light motion pass ---------- */
+/* each page fades up a little when you switch to it */
+.content > * { animation: page-in 0.25s ease backwards; }
+@keyframes page-in { from { opacity: 0; transform: translateY(6px); } }
+
+/* event cards come in one after another, capped so long lists don't drag */
+.card-grid > .ecard { animation: slide-up 0.3s ease backwards; }
+.card-grid > .ecard:nth-child(2) { animation-delay: 0.04s; }
+.card-grid > .ecard:nth-child(3) { animation-delay: 0.08s; }
+.card-grid > .ecard:nth-child(4) { animation-delay: 0.12s; }
+.card-grid > .ecard:nth-child(5) { animation-delay: 0.16s; }
+.card-grid > .ecard:nth-child(n+6) { animation-delay: 0.2s; }
+
+/* the joined / hosting pill pops in when you join something */
+.pill-green, .pill-host { animation: pop 0.2s ease backwards; }
+
+/* turn all of this off for people who set reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-delay: 0s !important; transition-duration: 0.01ms !important; }
+}
