@@ -284,7 +284,7 @@ function Main({ session }) {
       />
 
       <div className="main">
-        <Topbar user={session.user} onMenu={() => setDrawer(true)} />
+        <Topbar user={session.user} onMenu={() => setDrawer(true)} onHome={() => navigate('explore')} />
         <main className="content">
           {view === 'explore' && <ExplorePage {...shared} />}
           {view === 'nearby' && <NearbyPage {...shared} />}

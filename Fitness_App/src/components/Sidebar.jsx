@@ -24,10 +24,10 @@ export default function Sidebar({ user, active, onNavigate, open, onClose, badge
       <div className={`drawer-backdrop ${open ? 'show' : ''}`} onClick={onClose} />
       <aside className={`sidebar ${open ? 'open' : ''}`}>
         <div className="sidebar-top">
-          <div className="brand">
+          <button type="button" className="brand brand-home" onClick={() => onNavigate('explore')} aria-label="Go to Explore">
             <span className="brand-mark"><Icon name="zap" size="1.1em" /></span>
             {APP_NAME}
-          </div>
+          </button>
           <button className="icon-btn icon-btn-orange drawer-close" onClick={onClose} aria-label="Close menu">
             <Icon name="x" />
           </button>
