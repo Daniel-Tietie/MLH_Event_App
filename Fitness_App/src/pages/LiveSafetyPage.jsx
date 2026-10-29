@@ -151,7 +151,7 @@ function LiveSession({ session, a, phase, notify, goBack, data }) {
   const respond = useCallback((member, status) => {
     setStatuses((s) => ({ ...s, [member.id]: status }))
     if (status === 'safe') addFeed('ok', `${member.name} checked in safe`)
-    if (status === 'need_help') addFeed('danger', `🚨 ${member.name} needs help`)
+    if (status === 'need_help') addFeed('danger', `${member.name} needs help`)
   }, [addFeed])
 
   // Ask ONE person "Are you OK?" (used when they drift too far)
@@ -191,7 +191,7 @@ function LiveSession({ session, a, phase, notify, goBack, data }) {
         withGroup.forEach((m) => { if (!['need_help', 'pending'].includes(next[m.id])) next[m.id] = 'auto' })
         return next
       })
-      addFeed('info', `Auto check-in: ${withGroup.length} with the group ✓`)
+      addFeed('info', `Auto check-in: ${withGroup.length} with the group`)
       list.filter((m) => m.outside).forEach((m) => askOne(m))
       return
     }
@@ -270,11 +270,11 @@ function LiveSession({ session, a, phase, notify, goBack, data }) {
         setStatuses((s) => ({ ...s, [id]: status }))
         if (status === 'safe') addFeed('ok', `${name} checked in safe`)
         if (status === 'no_response') addFeed('danger', `${name} missed a check-in`)
-        if (status === 'checked_out') addFeed('ok', reason === 'early' ? `${name} left early and is heading home ✓` : `${name} checked out, heading home ✓`)
+        if (status === 'checked_out') addFeed('ok', reason === 'early' ? `${name} left early and is heading home` : `${name} checked out, heading home`)
       },
       onSos: ({ name }) => {
-        addFeed('danger', `🚨 SOS from ${name}`)
-        notify(`🚨 SOS from ${name}`, 'error')
+        addFeed('danger', `SOS from ${name}`)
+        notify(`SOS from ${name}`, 'error')
       },
       onEnded: () => {
         addFeed('info', 'The host ended the event')
@@ -299,7 +299,7 @@ function LiveSession({ session, a, phase, notify, goBack, data }) {
     setStatuses((s) => ({ ...s, [userId]: 'need_help' }))
     recordSafety(a.id, userId, 'need_help')
     channel.current?.send('sos', { userId, name: myName })
-    addFeed('danger', '🚨 You pressed SOS. The group has been alerted.')
+    addFeed('danger', 'You pressed SOS. The group has been alerted.')
   }
 
   function cancelSos() {
@@ -352,7 +352,7 @@ function LiveSession({ session, a, phase, notify, goBack, data }) {
     const st = statuses[m.id]
     const pos = positions.find((p) => p.id === m.id)
     if (st === 'need_help') return ['SOS', 'bad']
-    if (st === 'checked_out') return [ended ? 'Home safe ✓' : 'Left early ✓', 'good']
+    if (st === 'checked_out') return [ended ? 'Home safe' : 'Left early', 'good']
     if (!m.present) return ['Not arrived', 'wait']
     if (pos?.outside) return ['Too far', 'bad']
     if (st === 'no_response') return ['No response', 'bad']
@@ -361,7 +361,7 @@ function LiveSession({ session, a, phase, notify, goBack, data }) {
     if (st === 'auto') return ['Safe · auto', 'good']
     if (tracked && !ended) return ['With group', 'good']
     if (m.isHost) return ['Host', 'good']
-    return ['Arrived ✓', 'good']
+    return ['Arrived', 'good']
   }
 
   const hostControls = isHost && !ended && (
@@ -489,7 +489,7 @@ function LiveSession({ session, a, phase, notify, goBack, data }) {
                     <span className="member-name">
                       {m.name}
                       {m.isHost && <small> · host</small>}
-                      {m.qr && <small> · QR ✓</small>}
+                      {m.qr && <small> · QR scanned</small>}
                     </span>
                     <span className={`member-status ${tone}`}>{label}</span>
                   </li>
@@ -566,7 +566,7 @@ function LiveSession({ session, a, phase, notify, goBack, data }) {
       {sosOpen && (
         <div className="modal-backdrop">
           <div className="modal sos-modal">
-            <div className="sos-icon">🚨</div>
+            <div className="sos-icon"><Icon name="siren" size="1em" /></div>
             <h3>Emergency</h3>
             <p className="muted small">Your group has been alerted{tracked ? ' with your location' : ''}.</p>
 

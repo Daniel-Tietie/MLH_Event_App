@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { acceptChallenge, clearChallenge } from '../services/activityService'
+import Icon from './Icon'
 import '../styles/features.css'
 
 // Team vs team: shows the opponent, or lets another team accept an open challenge
@@ -13,7 +14,7 @@ export default function ChallengeBox({ activity: a, isHost, ended, notify, onCha
     const { error } = await acceptChallenge(a.id, team)
     setBusy(false)
     if (error) return notify(error.message, 'error')
-    notify(`Challenge accepted! ${team} vs ${a.host?.full_name || 'the host'}'s team ⚔️`, 'success')
+    notify(`Challenge accepted! ${team} vs ${a.host?.full_name || 'the host'}'s team`, 'success')
     setTeam('')
     onChange()
   }
@@ -28,7 +29,7 @@ export default function ChallengeBox({ activity: a, isHost, ended, notify, onCha
   if (a.opponent_team) {
     return (
       <div className="challenge accepted">
-        <span className="challenge-icon">⚔️</span>
+        <span className="challenge-icon"><Icon name="swords" size="1em" /></span>
         <div>
           <strong>vs {a.opponent_team}</strong>
           <p>Challenge accepted</p>
@@ -40,7 +41,7 @@ export default function ChallengeBox({ activity: a, isHost, ended, notify, onCha
 
   return (
     <div className="challenge open">
-      <span className="challenge-icon">⚔️</span>
+      <span className="challenge-icon"><Icon name="swords" size="1em" /></span>
       <div className="challenge-body">
         <strong>Open challenge</strong>
         <p>{isHost ? 'Waiting for a team to accept your challenge.' : 'Got a team? Take them on.'}</p>

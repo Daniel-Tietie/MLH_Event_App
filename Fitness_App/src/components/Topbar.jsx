@@ -10,7 +10,7 @@ export default function Topbar({ user, onMenu }) {
         <Icon name="menu" />
       </button>
       <div className="brand">
-        <span className="brand-mark">⚡</span>
+        <span className="brand-mark"><Icon name="zap" size="1.1em" /></span>
         {APP_NAME}
       </div>
       <Avatar name={user.user_metadata?.full_name || user.email} url={user.user_metadata?.avatar_url} size={38} />

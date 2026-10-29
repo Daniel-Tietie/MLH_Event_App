@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { signIn, signUp } from '../services/authService'
 import { APP_NAME, TAGLINE, GENDER_OPTIONS, adultCutoff } from '../utils/constants'
 import SportIcon from '../components/SportIcon'
+import Icon from '../components/Icon'
 import '../styles/auth.css'
 
 const SHOWCASE = [
@@ -39,7 +40,7 @@ export default function AuthPage() {
     <div className="auth">
       <section className="auth-hero">
         <div className="brand brand-lg">
-          <span className="brand-mark">⚡</span>
+          <span className="brand-mark"><Icon name="zap" size="1.1em" /></span>
           {APP_NAME}
         </div>
         <h1>{TAGLINE}</h1>

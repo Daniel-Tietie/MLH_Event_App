@@ -8,19 +8,19 @@ const cache = new Map() // "lat,lng,date" -> promise (one request per place+day)
 const utcDay = (d) => d.toISOString().slice(0, 10)
 const utcHour = (d) => d.toISOString().slice(0, 13) + ':00' // "2026-09-28T11:00", same as Open-Meteo in GMT
 
-// WMO weather codes -> label + emoji
+// WMO weather codes -> label + icon name (see components/Icon.jsx)
 export function describe(code) {
-  if (code === 0) return ['Clear', '☀️']
-  if (code <= 2) return ['Partly cloudy', '🌤️']
-  if (code === 3) return ['Cloudy', '☁️']
-  if (code === 45 || code === 48) return ['Fog', '🌫️']
-  if (code >= 51 && code <= 57) return ['Drizzle', '🌦️']
-  if (code >= 61 && code <= 67) return ['Rain', '🌧️']
-  if (code >= 71 && code <= 77) return ['Snow', '🌨️']
-  if (code >= 80 && code <= 82) return ['Showers', '🌧️']
-  if (code === 85 || code === 86) return ['Snow showers', '🌨️']
-  if (code >= 95) return ['Thunderstorms', '⛈️']
-  return ['Mixed', '🌥️']
+  if (code === 0) return ['Clear', 'sun']
+  if (code <= 2) return ['Partly cloudy', 'cloudSun']
+  if (code === 3) return ['Cloudy', 'cloud']
+  if (code === 45 || code === 48) return ['Fog', 'fog']
+  if (code >= 51 && code <= 57) return ['Drizzle', 'drizzle']
+  if (code >= 61 && code <= 67) return ['Rain', 'rain']
+  if (code >= 71 && code <= 77) return ['Snow', 'snow']
+  if (code >= 80 && code <= 82) return ['Showers', 'rain']
+  if (code === 85 || code === 86) return ['Snow showers', 'snow']
+  if (code >= 95) return ['Thunderstorms', 'storm']
+  return ['Mixed', 'cloudSun']
 }
 
 function fetchDays(lat, lng, from, to) {
@@ -38,7 +38,7 @@ function fetchDays(lat, lng, from, to) {
 /**
  * Weather during the event (start -> end, max 4 h window).
  * Resolves to null if we can't forecast it, { tooFar: true } if it's more than 16 days out,
- * otherwise { temp, tempMin, tempMax, rain, wind, code, label, emoji, warnings[] }.
+ * otherwise { temp, tempMin, tempMax, rain, wind, code, label, icon, warnings[] }.
  */
 export async function eventWeather({ coords, starts_at, ends_at }) {
   if (!coords) return null
@@ -65,7 +65,7 @@ export async function eventWeather({ coords, starts_at, ends_at }) {
   const codes = pick(h.weather_code)
   const worstCode = Math.max(...codes, h.weather_code[first] ?? 0)
   const code = worstCode >= 51 ? worstCode : h.weather_code[first] // show rain/snow/storm if it hits during the event
-  const [label, emoji] = describe(code)
+  const [label, icon] = describe(code)
 
   const w = {
     temp: Math.round(h.temperature_2m[first]),
@@ -73,7 +73,7 @@ export async function eventWeather({ coords, starts_at, ends_at }) {
     tempMax: Math.round(Math.max(...temps)),
     rain: rains.length ? Math.max(...rains) : 0,
     wind: Math.round(winds.length ? Math.max(...winds) : 0),
-    code, label, emoji,
+    code, label, icon,
   }
 
   const warnings = []

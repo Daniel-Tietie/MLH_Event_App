@@ -112,7 +112,7 @@ export default function CreateEventPage({ session, data, preset, notify, goBack,
 
     setBusy(false)
     if (error) return setError(error.message)
-    notify('Event published! 🎉', 'success')
+    notify('Event published', 'success')
     onCreated()
   }
 

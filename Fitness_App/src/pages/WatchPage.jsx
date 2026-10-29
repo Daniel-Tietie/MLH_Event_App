@@ -185,7 +185,7 @@ function WatchArt({ step, code, bpm }) {
         <div className="watch-screen">
           {step === 'idle' && (
             <>
-              <span className="ws-logo">⚡</span>
+              <span className="ws-logo"><Icon name="zap" size="1em" /></span>
               <span className="ws-title">Rally</span>
               <span className="ws-sub">Not paired</span>
             </>

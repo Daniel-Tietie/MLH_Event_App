@@ -42,7 +42,7 @@ export default function ForYou({ session, activities, openEvent, navigate }) {
   return (
     <section className="section">
       <div className="section-head">
-        <h2>For you ✨</h2>
+        <h2>For you</h2>
         <span className="muted small">Based on your sports and level</span>
       </div>
 

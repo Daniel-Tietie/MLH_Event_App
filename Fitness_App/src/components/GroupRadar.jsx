@@ -53,7 +53,7 @@ export default function GroupRadar({ members, radiusM }) {
               <circle r="7" className="radar-core" />
               {m.showLabel && (
                 <text y="-13" textAnchor="middle" className="radar-label">
-                  {m.name}{alert ? ' ⚠️' : ''}
+                  {m.name}{alert ? ' !' : ''}
                 </text>
               )}
             </g>

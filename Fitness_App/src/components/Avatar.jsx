@@ -9,7 +9,7 @@ export function Avatar({ name, url, size = 36 }) {
   )
 }
 
-// Overlapping faces like "👤👤👤 9+"
+// overlapping faces, then "9+" for the rest
 export function AvatarStack({ people = [], max = 3, size = 30 }) {
   const shown = people.slice(0, max)
   const extra = people.length - shown.length

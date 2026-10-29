@@ -238,3 +238,4 @@ textarea { resize: vertical; }
 /* sport icons (svg) and the letter fallback for sports without one */
 .sport-icon { display: inline-block; vertical-align: -0.125em; flex-shrink: 0; }
 .sport-letter { display: inline-block; font-weight: 700; line-height: 1; font-size: 0.85em; }
+.icon-inline { vertical-align: -0.125em; }

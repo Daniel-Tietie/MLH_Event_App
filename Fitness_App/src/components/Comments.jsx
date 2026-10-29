@@ -114,7 +114,7 @@ export default function Comments({ activity, userId, member, attended, onComment
                 {p.user_id === userId ? 'You' : initials(p.uploader?.full_name || 'Player')}
               </span>
               {p.hidden && <span className="photo-flag">Hidden</span>}
-              {!p.hidden && isHost && p.reports > 0 && <span className="photo-flag">⚑ {p.reports}</span>}
+              {!p.hidden && isHost && p.reports > 0 && <span className="photo-flag"><Icon name="flag" size="1em" className="icon-inline" /> {p.reports}</span>}
             </button>
           ))}
           {shown.length > 8 && <span className="photo-more">+{shown.length - 8}</span>}
@@ -130,7 +130,7 @@ export default function Comments({ activity, userId, member, attended, onComment
             </div>
           )}
           <div className="comment-form">
-            <button type="button" className="icon-btn photo-btn" onClick={() => fileInput.current?.click()} aria-label="Add a photo">📷</button>
+            <button type="button" className="icon-btn photo-btn" onClick={() => fileInput.current?.click()} aria-label="Add a photo"><Icon name="camera" size={18} /></button>
             <input
               ref={fileInput}
               type="file"
@@ -229,7 +229,7 @@ function PhotoViewer({ photo, name, isUploaderHost, canModerate, isMine, isHost,
             <span className="muted small">
               Uploaded {timeAgo(photo.created_at)}
               {photo.hidden && ' · Hidden from others'}
-              {isHost && photo.reports > 0 && ` · ⚑ ${photo.reports} report${photo.reports === 1 ? '' : 's'}`}
+              {isHost && photo.reports > 0 && ` · ${photo.reports} report${photo.reports === 1 ? '' : 's'}`}
             </span>
           </div>
 
@@ -246,10 +246,10 @@ function PhotoViewer({ photo, name, isUploaderHost, canModerate, isMine, isHost,
               </button>
             )}
             {!isMine && (photo.reportedByMe ? (
-              <span className="reported-tag">⚑ Reported</span>
+              <span className="reported-tag">Reported</span>
             ) : (
               <button className="btn btn-sm btn-report" disabled={busy} onClick={() => setReporting((v) => !v)}>
-                ⚑ Report
+                Report
               </button>
             ))}
           </div>

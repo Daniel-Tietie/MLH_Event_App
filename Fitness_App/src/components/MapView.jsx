@@ -99,7 +99,7 @@ export default function MapView({
     if (!m) return
     layers.current.picked.clearLayers()
     if (picked) {
-      L.marker([picked.lat, picked.lng], { icon: pinIcon('📍', 'picked') }).addTo(layers.current.picked)
+      L.marker([picked.lat, picked.lng], { icon: pinIcon(null, 'picked') }).addTo(layers.current.picked)
       m.setView([picked.lat, picked.lng], Math.max(m.getZoom(), 15))
     }
   }, [picked?.lat, picked?.lng]) // eslint-disable-line react-hooks/exhaustive-deps

@@ -120,7 +120,7 @@ export default function ProfilePage({ session, data, notify, openEvent }) {
     await new Promise((r) => setTimeout(r, 1500))
     try {
       setProfile(await verifyIdentityMock())
-      notify('ID verified ✔', 'success')
+      notify('ID verified', 'success')
     } catch (err) {
       notify(err.message, 'error')
     }
@@ -299,7 +299,7 @@ function ReliabilityCard({ stat }) {
   return (
     <div className="card rel-card">
       <div className={`rel-ring ${pct == null ? 'is-new' : ''}`} style={{ '--p': pct ?? 0, '--ring': ring }}>
-        <span>{pct == null ? '🎯' : `${pct}%`}</span>
+        <span>{pct == null ? <Icon name="target" size="1em" /> : `${pct}%`}</span>
       </div>
       <div>
         <h3>Pro show-up score</h3>

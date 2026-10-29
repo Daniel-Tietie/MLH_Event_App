@@ -60,7 +60,7 @@ export default function Messages({ userId, friends, activities, openEvent, notif
               <strong>{t.full_name || 'Player'}</strong>
               <span className={t.unread ? 'unread' : 'muted'}>
                 {t.last_from_me && 'You: '}
-                {t.last_activity && !t.last_body ? '📅 Shared an event' : t.last_body}
+                {t.last_activity && !t.last_body ? 'Shared an event' : t.last_body}
               </span>
             </span>
             <span className="dm-meta">
@@ -189,7 +189,7 @@ function Conversation({ me, other, canMessage, activities, openEvent, notify, on
                       </span>
                       <Icon name="right" size={16} />
                     </button>
-                  ) : <p className="muted small">📅 This event is no longer available</p>
+                  ) : <p className="muted small">This event is no longer available</p>
                 )}
                 {m.body && <p>{m.body}</p>}
                 <time>{formatTime(m.created_at)}{mine && m.read_at ? ' · Seen' : ''}</time>

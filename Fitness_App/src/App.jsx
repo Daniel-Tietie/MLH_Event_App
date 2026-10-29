@@ -93,7 +93,7 @@ function Main({ session }) {
     if (!token) return
     hostCheckIn(token).then(({ data: name, error }) => {
       if (error) notify(`Check-in failed: ${error.message}`, 'error')
-      else notify(`✅ ${name} is checked in`, 'success')
+      else notify(`${name} is checked in`, 'success')
       window.history.replaceState(window.history.state, '', window.location.pathname + window.location.hash)
       data.reload()
     })
@@ -181,7 +181,7 @@ function Main({ session }) {
   }
 
   const actions = {
-    join: (id) => run(joinActivity(id), "You're in! 🎉"),
+    join: (id) => run(joinActivity(id), "You're in!"),
     leave: (id) => run(leaveActivity(id), 'You left the event'),
     setStatus: (id, status) => run(setActivityStatus(id, status), status === 'closed' ? 'Sign-ups closed' : 'Sign-ups reopened'),
     showQr: async (activity) => {
@@ -247,7 +247,7 @@ function Main({ session }) {
     refreshUnread()
     const off = subscribeDms(session.user.id, (m) => {
       refreshUnread()
-      if (viewRef.current !== 'friends') notify('New message from a friend 💬', 'info')
+      if (viewRef.current !== 'friends') notify('New message from a friend', 'info')
     })
     const t = setInterval(refreshUnread, 15000)
     return () => { off(); clearInterval(t) }

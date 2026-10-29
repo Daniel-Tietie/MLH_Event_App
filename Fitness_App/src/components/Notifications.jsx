@@ -21,9 +21,9 @@ export default function Notifications({
     <div className="notif-stack" role="region" aria-label="Notifications">
       {updates.slice(0, 2).map(({ activity: a, status }) => {
         const copy = {
-          promoted: ['🎉', 'var(--green-soft)', `A spot opened in ${a.title}`, `You're in from the waitlist. It starts at ${formatTime(a.starts_at)}. Can't make it? Leave so the next person gets it.`],
-          approved: ['✅', 'var(--green-soft)', `You're approved for ${a.title}`, `The host accepted your request. Starts ${formatTime(a.starts_at)}.`],
-          denied: ['📨', 'var(--surface-2)', `Request for ${a.title}`, "The host couldn't fit you in this time. Try another event!"],
+          promoted: [<Icon name="ticket" />, 'var(--green-soft)', `A spot opened in ${a.title}`, `You're in from the waitlist. It starts at ${formatTime(a.starts_at)}. Can't make it? Leave so the next person gets it.`],
+          approved: [<Icon name="check" />, 'var(--green-soft)', `You're approved for ${a.title}`, `The host accepted your request. Starts ${formatTime(a.starts_at)}.`],
+          denied: [<Icon name="inbox" />, 'var(--surface-2)', `Request for ${a.title}`, "The host couldn't fit you in this time. Try another event!"],
         }[status]
         return (
           <div key={`u-${a.id}`} className="notif">
@@ -43,7 +43,7 @@ export default function Notifications({
 
       {hostRequests.slice(0, 2).map(({ activity: a, count }) => (
         <div key={`r-${a.id}`} className="notif">
-          <span className="notif-icon" style={{ background: 'var(--primary-soft)' }}>📨</span>
+          <span className="notif-icon" style={{ background: 'var(--primary-soft)' }}><Icon name="inbox" /></span>
           <div className="notif-body">
             <strong>{count} request{count === 1 ? '' : 's'} for {a.title}</strong>
             <p>Check their show-up scores and pick your roster.</p>
@@ -75,7 +75,7 @@ export default function Notifications({
 
       {homeChecks.slice(0, 2).map((a) => (
         <div key={`h-${a.id}`} className="notif notif-home">
-          <span className="notif-icon" style={{ background: 'var(--green-soft)' }}>🏠</span>
+          <span className="notif-icon" style={{ background: 'var(--green-soft)' }}><Icon name="home" /></span>
           <div className="notif-body">
             <strong>Did you get home safe?</strong>
             <p>{a.title} has ended. Let the group know you're OK.</p>
@@ -94,7 +94,7 @@ export default function Notifications({
           </span>
           <div className="notif-body">
             <strong>How was {a.title}?</strong>
-            <p>Leave a comment for the group 🙌</p>
+            <p>Leave a comment for the group.</p>
             <div className="notif-actions">
               <button className="btn btn-yellow btn-sm" onClick={() => onOpen(a.id)}>Comment</button>
               <button className="btn btn-ghost btn-sm" onClick={() => onDismiss(a.id)}>Later</button>

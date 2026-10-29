@@ -25,7 +25,7 @@ export default function Sidebar({ user, active, onNavigate, open, onClose, badge
       <aside className={`sidebar ${open ? 'open' : ''}`}>
         <div className="sidebar-top">
           <div className="brand">
-            <span className="brand-mark">⚡</span>
+            <span className="brand-mark"><Icon name="zap" size="1.1em" /></span>
             {APP_NAME}
           </div>
           <button className="icon-btn icon-btn-orange drawer-close" onClick={onClose} aria-label="Close menu">

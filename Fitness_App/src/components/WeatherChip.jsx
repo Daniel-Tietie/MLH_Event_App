@@ -1,20 +1,21 @@
 import { useEffect, useState } from 'react'
 import { eventWeather } from '../services/weatherService'
+import Icon from './Icon'
 
 // Short label for the worst thing about the forecast (null = looks fine)
 function headline(w) {
-  if (w.code >= 95) return { icon: '⛈️', text: 'Storms' }
-  if ((w.code >= 71 && w.code <= 77) || w.code === 85 || w.code === 86) return { icon: '🌨️', text: 'Snow' }
-  if (w.rain >= 60) return { icon: '🌧️', text: `Rain ${w.rain}%` }
-  if (w.tempMin <= 0) return { icon: '🥶', text: 'Freezing' }
-  if (w.tempMax >= 30) return { icon: '🥵', text: 'Hot' }
-  if (w.wind >= 40) return { icon: '💨', text: 'Windy' }
+  if (w.code >= 95) return { icon: 'storm', text: 'Storms' }
+  if ((w.code >= 71 && w.code <= 77) || w.code === 85 || w.code === 86) return { icon: 'snow', text: 'Snow' }
+  if (w.rain >= 60) return { icon: 'rain', text: `Rain ${w.rain}%` }
+  if (w.tempMin <= 0) return { icon: 'cold', text: 'Freezing' }
+  if (w.tempMax >= 30) return { icon: 'hot', text: 'Hot' }
+  if (w.wind >= 40) return { icon: 'wind', text: 'Windy' }
   return null
 }
 
 /**
  * Small weather chip that sits on the event's hero banner.
- * Normal: "🌤️ 14°C · 10% rain". Bad weather: orange "🌧️ 7°C · Rain 80%".
+ * Normal: "14°C · 10% rain" with a weather icon. Bad weather turns it orange: "7°C · Rain 80%".
  * Tap to see the details (temperature range, wind, tips).
  */
 export default function WeatherChip({ activity: a }) {
@@ -41,14 +42,14 @@ export default function WeatherChip({ activity: a }) {
         aria-expanded={open}
         title={`${w.label}, ${range}, ${w.rain}% rain, wind ${w.wind} km/h`}
       >
-        <span>{bad ? bad.icon : w.emoji}</span>
+        <Icon name={bad ? bad.icon : w.icon} size="1.1em" />
         {w.temp}°C · {bad ? bad.text : `${w.rain}% rain`}
       </button>
       {open && (
         <div className="wx-pop" role="dialog">
-          <strong>{w.emoji} {w.label}</strong>
+          <strong><Icon name={w.icon} size="1em" className="icon-inline" /> {w.label}</strong>
           <span>{range} during the event</span>
-          <span>💧 {w.rain}% rain · 💨 {w.wind} km/h</span>
+          <span><Icon name="droplet" size="1em" className="icon-inline" /> {w.rain}% rain · <Icon name="wind" size="1em" className="icon-inline" /> {w.wind} km/h</span>
           {w.warnings.map((t) => <p key={t}>{t}</p>)}
         </div>
       )}
