@@ -202,13 +202,9 @@ begin
   drop policy if exists "record own safety checkin" on public.safety_checkins;
   create policy "record own safety checkin" on public.safety_checkins for insert to authenticated with check (user_id = auth.uid());
 
-  -- Fitness connections and live location: only yours
+  -- Fitness connections: only yours (live location policies are further down)
   drop policy if exists "own fitness connections" on public.fitness_connections;
   create policy "own fitness connections" on public.fitness_connections for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
-  drop policy if exists "own live location" on public.live_locations;
-  create policy "own live location" on public.live_locations for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
-  drop policy if exists "own geofence alerts" on public.geofence_alerts;
-  create policy "own geofence alerts" on public.geofence_alerts for select to authenticated using (user_id = auth.uid());
 end $$;
 
 grant usage on schema public to anon, authenticated;
@@ -222,5 +218,164 @@ grant select, insert on public.safety_checkins to authenticated;
 grant select, insert, update, delete on public.fitness_connections to authenticated;
 grant select, insert, update, delete on public.live_locations to authenticated;
 grant select on public.geofence_alerts to authenticated;
+
+-- ---------- Pieces from the hackathon patches (were only in the live database) ----------
+
+-- true if you're the host or a current participant of the activity
+create or replace function public.is_activity_member(p_activity uuid)
+returns boolean
+language sql stable security definer
+set search_path to 'public'
+as $$
+  select exists (select 1 from activities a where a.id = p_activity and a.host_id = auth.uid())
+      or exists (select 1 from activity_participants p
+                 where p.activity_id = p_activity and p.user_id = auth.uid() and p.status <> 'left');
+$$;
+
+-- open upcoming activities within a radius, used by the browse page
+create or replace function public.activities_nearby(p_lat double precision, p_lng double precision, p_radius_km double precision)
+returns table(id uuid, host_id uuid, host_name text, sport_id integer, sport_name text, title text, description text, type activity_type, opponent_team text, city text, address text, starts_at timestamptz, max_participants integer, joined_count integer, spots_left integer, status activity_status, night_mode boolean, lat double precision, lng double precision, distance_km double precision)
+language sql stable
+set search_path to 'public', 'extensions'
+as $$
+  select a.id, a.host_id, h.full_name, a.sport_id, s.name,
+         a.title, a.description, a.type, a.opponent_team,
+         a.city, a.address, a.starts_at,
+         a.max_participants, c.n::int, (a.max_participants - c.n)::int,
+         a.status, a.night_mode,
+         ST_Y(a.location::geometry), ST_X(a.location::geometry),
+         ST_Distance(a.location, ST_SetSRID(ST_MakePoint(p_lng, p_lat), 4326)::geography) / 1000
+    from activities a
+    join profiles h on h.id = a.host_id
+    join sports s on s.id = a.sport_id
+    cross join lateral (
+      select count(*) as n from activity_participants p
+       where p.activity_id = a.id and p.status <> 'left'
+    ) c
+   where a.status = 'open'
+     and a.starts_at > now()
+     and ST_DWithin(a.location, ST_SetSRID(ST_MakePoint(p_lng, p_lat), 4326)::geography, p_radius_km * 1000)
+   order by a.starts_at;
+$$;
+
+-- host scans a participant's qr token to check them in
+create or replace function public.check_in(p_token uuid)
+returns text
+language plpgsql security definer
+set search_path to 'public'
+as $$
+declare v_name text;
+begin
+  update activity_participants ap
+     set status = 'checked_in', checked_in_at = coalesce(ap.checked_in_at, now())
+    from activities a, profiles p
+   where ap.qr_token = p_token
+     and ap.status in ('joined', 'checked_in')
+     and a.id = ap.activity_id and a.host_id = auth.uid()
+     and p.id = ap.user_id
+  returning p.full_name into v_name;
+  if v_name is null then
+    raise exception 'Invalid token or not the host of this activity';
+  end if;
+  return v_name;
+end $$;
+
+-- locks the activity row so two people can't take the last spot, closes it when full
+create or replace function public.enforce_participant_cap()
+returns trigger
+language plpgsql security definer
+set search_path to 'public'
+as $$
+declare
+  act activities%rowtype;
+  current_count int;
+begin
+  select * into act from activities where id = new.activity_id for update;
+  if act.status <> 'open' then
+    raise exception 'This activity is closed';
+  end if;
+  select count(*) into current_count
+    from activity_participants
+    where activity_id = new.activity_id and status <> 'left';
+  if current_count >= act.max_participants then
+    raise exception 'This activity is full';
+  end if;
+  if current_count + 1 >= act.max_participants then
+    update activities set status = 'closed' where id = new.activity_id;
+  end if;
+  return new;
+end $$;
+
+drop trigger if exists participant_cap on public.activity_participants;
+create trigger participant_cap before insert on public.activity_participants
+  for each row execute function enforce_participant_cap();
+
+-- flags anyone who strays outside the night walk route corridor
+create or replace function public.flag_geofence()
+returns trigger
+language plpgsql security definer
+set search_path to 'public', 'extensions'
+as $$
+declare
+  r geography;
+  corridor int;
+  d float;
+begin
+  select route, corridor_radius_m into r, corridor from activities where id = new.activity_id;
+  if r is null then return new; end if;
+  d := ST_Distance(r, new.position);
+  if d > corridor then
+    insert into geofence_alerts (activity_id, user_id, meters_outside)
+    values (new.activity_id, new.user_id, d - corridor);
+  end if;
+  return new;
+end $$;
+
+drop trigger if exists live_location_geofence on public.live_locations;
+create trigger live_location_geofence after insert or update of position on public.live_locations
+  for each row execute function flag_geofence();
+
+-- views keep security_invoker on so they follow the rls on the tables underneath
+create or replace view public.activity_details with (security_invoker = true) as
+  select a.id, a.host_id, h.full_name as host_name, h.is_verified as host_verified,
+         a.sport_id, s.name as sport_name, a.title, a.description, a.type, a.opponent_team,
+         a.city, a.address, a.starts_at, a.max_participants,
+         c.n::integer as joined_count, (a.max_participants - c.n)::integer as spots_left,
+         a.status, a.night_mode, a.corridor_radius_m, a.checkin_interval_s,
+         st_y(a.location::geometry) as lat, st_x(a.location::geometry) as lng,
+         case when a.route is null then null::json else st_asgeojson(a.route::geometry)::json end as route_geojson
+    from activities a
+    join profiles h on h.id = a.host_id
+    join sports s on s.id = a.sport_id
+    cross join lateral (
+      select count(*) as n from activity_participants p
+       where p.activity_id = a.id and p.status <> 'left'::participant_status
+    ) c;
+
+create or replace view public.live_positions with (security_invoker = true) as
+  select l.activity_id, l.user_id, p.full_name,
+         st_y(l.position::geometry) as lat, st_x(l.position::geometry) as lng, l.updated_at
+    from live_locations l
+    join profiles p on p.id = l.user_id;
+
+grant select on public.activity_details, public.live_positions to authenticated;
+
+-- live location: everyone in the activity sees each other, you only share or change your own
+drop policy if exists "members see live locations" on public.live_locations;
+create policy "members see live locations" on public.live_locations for select
+  using (is_activity_member(activity_id));
+drop policy if exists "share own location" on public.live_locations;
+create policy "share own location" on public.live_locations for insert
+  with check (auth.uid() = user_id and is_activity_member(activity_id));
+drop policy if exists "update own location" on public.live_locations;
+create policy "update own location" on public.live_locations for update
+  using (auth.uid() = user_id) with check (auth.uid() = user_id and is_activity_member(activity_id));
+drop policy if exists "stop sharing" on public.live_locations;
+create policy "stop sharing" on public.live_locations for delete
+  using (auth.uid() = user_id);
+-- no insert policy on geofence_alerts, only the trigger writes to it
+drop policy if exists "members see alerts" on public.geofence_alerts;
+create policy "members see alerts" on public.geofence_alerts for select
+  using (is_activity_member(activity_id));
 
 notify pgrst, 'reload schema';
